@@ -1,0 +1,996 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+
+<title>Emaar – The Views · EKL Priority Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#1a1a1a;color:#e5e5e5;min-height:100vh}
+
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;padding:.75rem 1.25rem;border-bottom:1px solid #2e2e2e;flex-wrap:wrap;gap:6px}
+.topbar h1{font-size:15px;font-weight:600;color:#f0f0f0}
+.topbar p{font-size:11px;color:#888;margin-top:1px}
+.badge-ekl{font-size:11px;padding:3px 11px;border-radius:20px;font-weight:600;background:#92400e;color:#fbbf24;border:1px solid #b45309;flex-shrink:0;white-space:nowrap;-webkit-appearance:none}
+
+.slicers{display:flex;align-items:center;gap:6px;padding:.75rem 1.25rem;border-bottom:1px solid #2e2e2e;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap}
+.slicers::-webkit-scrollbar{display:none}
+.sl-lbl{font-size:12px;color:#aaa;font-weight:500;white-space:nowrap;flex-shrink:0}
+.sl{font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer;border:1px solid #3a3a3a;color:#ccc;background:#232323;font-family:inherit;transition:all .15s;-webkit-appearance:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none;display:inline-block;text-align:center;white-space:nowrap;flex-shrink:0}
+.sl.on{border-color:#555;color:#f0f0f0;background:#2e2e2e;font-weight:600}
+.sl:active{opacity:.7}
+.sl-divider{width:1px;height:20px;background:#333;flex-shrink:0;margin:0 2px}
+
+.wrap{padding:1rem 1.25rem;max-width:1200px;margin:0 auto}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.five{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
+.six{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px}
+
+.card{background:#242424;border:1px solid #2e2e2e;border-radius:10px;padding:1rem 1.25rem}
+.card-title{font-size:13px;font-weight:600;color:#f0f0f0;margin-bottom:2px}
+.card-sub{font-size:11px;color:#999;margin-bottom:12px}
+
+/* TODAY STRIP */
+.today-strip{background:#1e1e1e;border:1px solid #2e2e2e;border-radius:10px;padding:.75rem 1.25rem;margin-bottom:12px}
+.today-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.today-title{font-size:11px;font-weight:600;color:#f59e0b;text-transform:uppercase;letter-spacing:.06em}
+.today-date{font-size:10px;color:#555}
+.today-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.today-kpi{background:#242424;border:1px solid #2e2e2e;border-radius:8px;padding:10px 12px}
+.today-kpi-lbl{font-size:9px;color:#999;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.today-kpi-val{font-size:22px;font-weight:700;line-height:1}
+.today-kpi-sub{font-size:10px;color:#888;margin-top:2px}
+
+/* KPI */
+.kpi{background:#1e1e1e;border:1px solid #2e2e2e;border-radius:8px;padding:14px 16px}
+.kpi-lbl{font-size:10px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.kpi-val{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-desc{font-size:11px;color:#999;margin-bottom:3px}
+.kpi-pct{font-size:12px;font-weight:600}
+
+/* DONUT GAUGES */
+.donuts-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.donut-col{display:flex;flex-direction:column;align-items:center}
+.donut-col-lbl{font-size:11px;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;text-align:center}
+.gauge-item{display:flex;flex-direction:column;align-items:center;margin-bottom:10px}
+.gauge-item-lbl{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.gauge-svg{display:block}
+
+
+.toggle-btn {
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #aaa;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-appearance: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.toggle-btn:active { opacity: .7; }
+.toggle-btn.hidden-state {
+  border-color: #f59e0b;
+  color: #f59e0b;
+  background: #2a1f00;
+}
+
+/* ── Half-donut gauge (rotation technique, iOS safe) ── */
+.svg-wrap {
+  width: 100%;
+  max-width: 120px;
+  margin: 2px auto;
+}
+.svg-wrap svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.gauge-desc{font-size:10px;color:#888;margin-top:2px;text-align:center}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;justify-content:center}
+.leg-i{display:flex;align-items:center;gap:5px;font-size:10px;color:#aaa}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* PIPELINE */
+.pipe-stage{margin-bottom:8px}
+.pipe-hd{display:flex;justify-content:space-between;margin-bottom:3px}
+.pipe-name{font-size:11px;color:#ccc}
+.pipe-count{font-size:11px;color:#888}
+.pipe-track{height:22px;background:#1a1a1a;border-radius:4px;overflow:hidden}
+.pipe-fill{height:100%;border-radius:4px;transition:width .5s ease;display:flex;align-items:center;padding-left:8px;min-width:0}
+.pipe-pct-lbl{font-size:10px;font-weight:700;color:#fff;white-space:nowrap}
+
+/* COMPARISON */
+.cmp-group{margin-bottom:14px}
+.cmp-group-lbl{font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.cmp-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.cmp-row-lbl{font-size:11px;color:#aaa;width:58px;flex-shrink:0;text-align:right}
+.cmp-track{flex:1;height:16px;background:#1a1a1a;border-radius:3px;overflow:hidden}
+.cmp-fill{height:100%;border-radius:3px;transition:width .5s ease;display:flex;align-items:center;padding-left:6px}
+.cmp-fill-lbl{font-size:9px;font-weight:700;color:#fff}
+.cmp-val{font-size:11px;color:#999;width:52px;flex-shrink:0;text-align:right;white-space:nowrap}
+
+/* EDIT TABLE */
+.edit-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:8px}
+.edit-tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:740px}
+.edit-tbl th{font-size:10px;font-weight:600;color:#aaa;padding:7px 8px;text-align:center;white-space:nowrap;border-bottom:1px solid #333}
+.edit-tbl th:first-child{text-align:left}
+.edit-tbl td{padding:5px 6px;border-bottom:1px solid #2a2a2a;text-align:center;vertical-align:middle}
+.edit-tbl td:first-child{text-align:left;font-size:12px;font-weight:600;color:#e0e0e0;padding-left:10px}
+.edit-tbl tr.sub-row td{background:#1e1e1e;font-weight:700;color:#bbb;font-size:11px}
+.edit-tbl tr.grand-row td{background:#191919;font-weight:700;color:#fff;border-top:1.5px solid #444}
+.edit-tbl input[type=number]{width:52px;padding:5px 2px;border:1px solid #3a3a3a;border-radius:4px;background:#1e1e1e;color:#f0f0f0;font-size:13px;font-family:inherit;text-align:center;-moz-appearance:textfield;-webkit-appearance:none}
+.edit-tbl input::-webkit-outer-spin-button,.edit-tbl input::-webkit-inner-spin-button{-webkit-appearance:none}
+.edit-tbl input:focus{outline:none;border-color:#4a9eff;background:#1a2a3a}
+.aqcr-hd{background:#1b4a7a;color:#7ec8f8 !important}
+.sqcr-hd{background:#1a4a2e;color:#6fcf97 !important}
+.today-hd-col{background:#3d2a00;color:#fbbf24 !important}
+.grp-sub{font-size:9px;font-weight:400;opacity:.75}
+.tower-s{font-size:10px;font-weight:600;background:#064e3b;color:#34d399;padding:1px 7px;border-radius:20px;display:inline-block}
+.tower-n{font-size:10px;font-weight:600;background:#312e81;color:#a5b4fc;padding:1px 7px;border-radius:20px;display:inline-block}
+.hint{font-size:10px;color:#777;margin-top:6px}
+.sec-title{font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+
+.btn-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.reset-btn{font-size:11px;padding:6px 13px;border-radius:6px;border:1px solid #3a3a3a;background:#1e1e1e;color:#888;cursor:pointer;font-family:inherit;-webkit-appearance:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.reset-btn:active{opacity:.7}
+.save-btn{font-size:11px;padding:6px 13px;border-radius:6px;border:1px solid #166534;background:#14532d;color:#4ade80;cursor:pointer;font-family:inherit;font-weight:600;-webkit-appearance:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.save-btn:active{opacity:.7}
+.save-toast{position:fixed;bottom:24px;right:24px;left:24px;text-align:center;background:#14532d;color:#4ade80;border:1px solid #166534;border-radius:8px;padding:10px 18px;font-size:12px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+
+/* ===== MOBILE ===== */
+@media(max-width:640px){
+  .topbar{padding:.6rem .85rem}
+  .topbar h1{font-size:13px}
+  .topbar p{font-size:10px}
+  .slicers{padding:.6rem .85rem;gap:5px}
+  .wrap{padding:.75rem .75rem}
+  .two{grid-template-columns:1fr;gap:10px}
+  .four{grid-template-columns:1fr 1fr;gap:6px}
+  .five{grid-template-columns:1fr 1fr;gap:6px}
+  .six{grid-template-columns:1fr 1fr;gap:6px}
+  .today-grid{grid-template-columns:1fr 1fr;gap:6px}
+  .kpi{padding:10px 11px}
+  .kpi-lbl{font-size:9px}
+  .kpi-val{font-size:22px}
+  .kpi-desc,.kpi-pct{font-size:10px}
+  .card{padding:.85rem .9rem}
+  .card-title{font-size:12px}
+  .card-sub{font-size:10px;margin-bottom:8px}
+  .donuts-row{grid-template-columns:1fr 1fr;gap:4px}
+  .donut-col-lbl{font-size:10px}
+  .gauge-num{font-size:14px}
+  .gauge-desc{font-size:9px}
+  .gauge-item-lbl{font-size:8px}
+  .gauge-canvas{width:100px !important;height:56px !important}
+  .pipe-name,.pipe-count{font-size:10px}
+  .pipe-track{height:18px}
+  .cmp-row-lbl{width:44px;font-size:10px}
+  .cmp-val{width:42px;font-size:10px}
+  .cmp-track{height:13px}
+  .btn-row{flex-direction:column;align-items:stretch}
+  .reset-btn,.save-btn{width:100%;padding:9px;font-size:13px;text-align:center}
+  .today-kpi-val{font-size:20px}
+  .today-kpi-lbl{font-size:8px}
+}
+@media(max-width:380px){
+  .gauge-svg{width:90px !important;height:50px !important}
+  .kpi-val{font-size:19px}
+}
+
+button, .sl, .toggle-btn, .reset-btn, .save-btn{
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-touch-callout:none;
+}
+
+</style>
+</head>
+<body style="">
+
+<div class="topbar">
+  <div>
+    <h1>Emaar — The Views · EKL Priority Handover Summary</h1>
+    <p id="top-sub">All towers · all types · <strong>112</strong> priority apartments</p>
+  </div>
+  <span class="badge-ekl">⚡ EKL Priority</span>
+</div>
+
+<div class="slicers" id="slicer-bar">
+  <span class="sl-lbl">Tower:</span>
+  <button class="sl on" id="sl-all" data-dim="tower" data-val="all">All towers</button>
+  <button class="sl" id="sl-south" data-dim="tower" data-val="south">South tower (V1)</button>
+  <button class="sl" id="sl-north" data-dim="tower" data-val="north">North tower (V2)</button>
+  <div class="sl-divider"></div>
+  <span class="sl-lbl">Type:</span>
+  <button class="sl on" id="sl-atype" data-dim="type" data-val="all">All types</button>
+  <button class="sl" id="sl-cu" data-dim="type" data-val="cu">Customer units</button>
+  <button class="sl" id="sl-dha" data-dim="type" data-val="dha">DHA apartments</button>
+</div>
+
+<div class="wrap">
+
+  <!-- TODAY STRIP -->
+  <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:6px">
+    <button class="toggle-btn" id="today-toggle">📅 Hide today activity</button>
+  </div>
+  <div class="today-strip" id="today-strip">
+    <div class="today-hd">
+      <span class="today-title">
+        📅 Today's activity — 
+        <input type="text" id="today-date-input" value="02 June 2026" style="background:#242424;border:1px solid #444;color:#fbbf24;
+          padding:3px 8px;border-radius:6px;font-size:11px;
+          width:110px;font-family:inherit">
+      </span>
+
+    </div>
+    <div id="today-body">
+    <div class="today-grid">
+      <div class="today-kpi">
+        <div class="today-kpi-lbl">AQCR approved today</div>
+        <div class="today-kpi-val" id="td-aa" style="color:#22c55e">0</div>
+        <div class="today-kpi-sub">cumulative: <span id="td-aa-cum">87</span></div>
+      </div>
+      <div class="today-kpi">
+        <div class="today-kpi-lbl">SQCR approved today</div>
+        <div class="today-kpi-val" id="td-sa" style="color:#f59e0b">0</div>
+        <div class="today-kpi-sub">cumulative: <span id="td-sa-cum">63</span></div>
+      </div>
+      <div class="today-kpi">
+        <div class="today-kpi-lbl">AQCR de-snag approved</div>
+        <div class="today-kpi-val" id="td-ad" style="color:#f59e0b">0</div>
+        <div class="today-kpi-sub">approved to date: <span id="td-ad-cum">13</span></div>
+      </div>
+      <div class="today-kpi">
+        <div class="today-kpi-lbl">SQCR de-snag approved</div>
+        <div class="today-kpi-val" id="td-sd" style="color:#ef4444">0</div>
+        <div class="today-kpi-sub">approved to date: <span id="td-sd-cum">15</span></div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div style="font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;margin-top:2px">📊 Cumulative Data</div>
+  <div class="five" id="kpi-row"><div class="kpi"><div class="kpi-lbl">Total requested</div><div class="kpi-val" style="color:#f0f0f0">112</div><div class="kpi-desc">EKL priority units</div><div style="height:4px;background:#2e2e2e;border-radius:2px;margin-top:8px;overflow:hidden"><div style="height:100%;width:100%;background:#444;border-radius:2px;transition:width .4s"></div></div></div><div class="kpi"><div class="kpi-lbl">AQCR approved</div><div class="kpi-val" style="color:#22c55e">87</div><div class="kpi-desc">of 96 offered</div><div class="kpi-pct" style="color:#22c55e">78% of total</div><div style="height:4px;background:#2e2e2e;border-radius:2px;margin-top:8px;overflow:hidden"><div style="height:100%;width:78%;background:#22c55e;border-radius:2px;transition:width .4s"></div></div></div><div class="kpi"><div class="kpi-lbl">SQCR approved</div><div class="kpi-val" style="color:#f59e0b">63</div><div class="kpi-desc">of 96 offered</div><div class="kpi-pct" style="color:#f59e0b">56% of total</div><div style="height:4px;background:#2e2e2e;border-radius:2px;margin-top:8px;overflow:hidden"><div style="height:100%;width:56%;background:#f59e0b;border-radius:2px;transition:width .4s"></div></div></div><div class="kpi"><div class="kpi-lbl">AQCR Handed Over / De-Snagged</div><div class="kpi-val" style="color:#10b981">13</div><div class="kpi-desc">AQCR handed over</div><div class="kpi-pct" style="color:#10b981">12% of total</div><div style="height:4px;background:#2e2e2e;border-radius:2px;margin-top:8px;overflow:hidden"><div style="height:100%;width:12%;background:#10b981;border-radius:2px;transition:width .4s"></div></div></div><div class="kpi"><div class="kpi-lbl">SQCR Handed Over / De-Snagged</div><div class="kpi-val" style="color:#10b981">15</div><div class="kpi-desc">SQCR handed over</div><div class="kpi-pct" style="color:#10b981">13% of total</div><div style="height:4px;background:#2e2e2e;border-radius:2px;margin-top:8px;overflow:hidden"><div style="height:100%;width:13%;background:#10b981;border-radius:2px;transition:width .4s"></div></div></div></div>
+
+  <!-- DONUTS + PIPELINE -->
+  <div class="two">
+    <div class="card">
+      <div class="card-title">AQCR vs SQCR completion</div>
+      <div class="card-sub">Approval rates out of total requested</div>
+      <div class="donuts-row">
+        <div class="donut-col">
+          <div class="donut-col-lbl">AQCR</div>
+          <div class="gauge-item">
+            <div class="gauge-item-lbl">Approved</div>
+            <div class="svg-wrap">
+              <svg viewBox="0 0 120 68" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,64 A50,50 0 0,1 110,64" fill="none" stroke="#333" stroke-width="11" stroke-linecap="round"></path>
+                <path id="g-aa" d="M10,64 A50,50 0 0,1 110,64" style="stroke-dasharray:157;stroke-dashoffset:35.0;stroke:#22c55e;fill:none;stroke-width:11;stroke-linecap:round"></path>
+              </svg>
+            </div>
+            <div class="gauge-num" id="g-aa-pct">78%</div>
+            <div class="gauge-desc" id="g-aa-desc">87 of 112</div>
+          </div>
+          <div class="gauge-item">
+            <div class="gauge-item-lbl">De-snag offered</div>
+            <div class="svg-wrap">
+              <svg viewBox="0 0 120 68" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,64 A50,50 0 0,1 110,64" fill="none" stroke="#333" stroke-width="11" stroke-linecap="round"></path>
+                <path id="g-ad" d="M10,64 A50,50 0 0,1 110,64" style="stroke-dasharray:157;stroke-dashoffset:122.0;stroke:#f59e0b;fill:none;stroke-width:11;stroke-linecap:round"></path>
+              </svg>
+            </div>
+            <div class="gauge-num" id="g-ad-pct">22%</div>
+            <div class="gauge-desc" id="g-ad-desc">25 of 112</div>
+          </div>
+          <div class="gauge-item">
+            <div class="gauge-item-lbl">Handed over</div>
+            <div class="svg-wrap">
+              <svg viewBox="0 0 120 68" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,64 A50,50 0 0,1 110,64" fill="none" stroke="#333" stroke-width="11" stroke-linecap="round"></path>
+                <path id="g-ah" d="M10,64 A50,50 0 0,1 110,64" style="stroke-dasharray:157;stroke-dashoffset:138.8;stroke:#10b981;fill:none;stroke-width:11;stroke-linecap:round"></path>
+              </svg>
+            </div>
+            <div class="gauge-num" id="g-ah-pct">12%</div>
+            <div class="gauge-desc" id="g-ah-desc">13 of 112</div>
+          </div>
+        </div>
+        <div class="donut-col">
+          <div class="donut-col-lbl">SQCR</div>
+          <div class="gauge-item">
+            <div class="gauge-item-lbl">Approved</div>
+            <div class="svg-wrap">
+              <svg viewBox="0 0 120 68" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,64 A50,50 0 0,1 110,64" fill="none" stroke="#333" stroke-width="11" stroke-linecap="round"></path>
+                <path id="g-sa" d="M10,64 A50,50 0 0,1 110,64" style="stroke-dasharray:157;stroke-dashoffset:68.7;stroke:#f59e0b;fill:none;stroke-width:11;stroke-linecap:round"></path>
+              </svg>
+            </div>
+            <div class="gauge-num" id="g-sa-pct">56%</div>
+            <div class="gauge-desc" id="g-sa-desc">63 of 112</div>
+          </div>
+          <div class="gauge-item">
+            <div class="gauge-item-lbl">De-snag offered</div>
+            <div class="svg-wrap">
+              <svg viewBox="0 0 120 68" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,64 A50,50 0 0,1 110,64" fill="none" stroke="#333" stroke-width="11" stroke-linecap="round"></path>
+                <path id="g-sd" d="M10,64 A50,50 0 0,1 110,64" style="stroke-dasharray:157;stroke-dashoffset:91.1;stroke:#ef4444;fill:none;stroke-width:11;stroke-linecap:round"></path>
+              </svg>
+            </div>
+            <div class="gauge-num" id="g-sd-pct">42%</div>
+            <div class="gauge-desc" id="g-sd-desc">47 of 112</div>
+          </div>
+          <div class="gauge-item">
+            <div class="gauge-item-lbl">Handed over</div>
+            <div class="svg-wrap">
+              <svg viewBox="0 0 120 68" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,64 A50,50 0 0,1 110,64" fill="none" stroke="#333" stroke-width="11" stroke-linecap="round"></path>
+                <path id="g-sh" d="M10,64 A50,50 0 0,1 110,64" style="stroke-dasharray:157;stroke-dashoffset:136.0;stroke:#10b981;fill:none;stroke-width:11;stroke-linecap:round"></path>
+              </svg>
+            </div>
+            <div class="gauge-num" id="g-sh-pct">13%</div>
+            <div class="gauge-desc" id="g-sh-desc">15 of 112</div>
+          </div>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="leg-i"><div class="leg-dot" style="background:#22c55e"></div>AQCR approved</div>
+        <div class="leg-i"><div class="leg-dot" style="background:#f59e0b"></div>SQCR approved / AQCR de-snag</div>
+        <div class="leg-i"><div class="leg-dot" style="background:#10b981"></div>Handed over</div>
+        <div class="leg-i"><div class="leg-dot" style="background:#ef4444"></div>SQCR de-snag</div>
+        <div class="leg-i"><div class="leg-dot" style="background:#333;border:1px solid #555"></div>Remaining</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">AQCR handover pipeline</div>
+      <div class="card-sub">Funnel from offered → handed over</div>
+      <div id="aqcr-pipe"><div class="pipe-stage"><div class="pipe-hd"><span class="pipe-name">Offered</span><span class="pipe-count">96 / 112</span></div><div class="pipe-track"><div class="pipe-fill" style="width:86%;background:#3b82f6"><span class="pipe-pct-lbl">86%</span></div></div></div><div class="pipe-stage"><div class="pipe-hd"><span class="pipe-name">Approved</span><span class="pipe-count">87 / 112</span></div><div class="pipe-track"><div class="pipe-fill" style="width:78%;background:#22c55e"><span class="pipe-pct-lbl">78%</span></div></div></div><div class="pipe-stage"><div class="pipe-hd"><span class="pipe-name">De-snag offered</span><span class="pipe-count">25 / 112</span></div><div class="pipe-track"><div class="pipe-fill" style="width:22%;background:#f59e0b"><span class="pipe-pct-lbl">22%</span></div></div></div><div class="pipe-stage"><div class="pipe-hd"><span class="pipe-name">Handed over</span><span class="pipe-count">13 / 112</span></div><div class="pipe-track"><div class="pipe-fill" style="width:12%;background:#10b981"><span class="pipe-pct-lbl">12%</span></div></div></div></div>
+      <div class="card-title" style="margin-top:18px">SQCR handover pipeline</div>
+      <div class="card-sub" style="margin-top:2px">Funnel from offered → handed over</div>
+      <div id="sqcr-pipe"><div class="pipe-stage"><div class="pipe-hd"><span class="pipe-name">Offered</span><span class="pipe-count">96 / 112</span></div><div class="pipe-track"><div class="pipe-fill" style="width:86%;background:#8b5cf6"><span class="pipe-pct-lbl">86%</span></div></div></div><div class="pipe-stage"><div class="pipe-hd"><span class="pipe-name">Approved</span><span class="pipe-count">63 / 112</span></div><div class="pipe-track"><div class="pipe-fill" style="width:56%;background:#f59e0b"><span class="pipe-pct-lbl">56%</span></div></div></div><div class="pipe-stage"><div class="pipe-hd"><span class="pipe-name">De-snag offered</span><span class="pipe-count">47 / 112</span></div><div class="pipe-track"><div class="pipe-fill" style="width:42%;background:#ef4444"><span class="pipe-pct-lbl">42%</span></div></div></div><div class="pipe-stage"><div class="pipe-hd"><span class="pipe-name">Handed over</span><span class="pipe-count">15 / 112</span></div><div class="pipe-track"><div class="pipe-fill" style="width:13%;background:#10b981"><span class="pipe-pct-lbl">13%</span></div></div></div></div>
+    </div>
+  </div>
+
+  <!-- COMPARISON -->
+  <div class="two">
+    <div class="card">
+      <div class="card-title">AQCR — group comparison</div>
+      <div class="card-sub">Approved / De-snag offered / Handed over</div>
+      <div id="aqcr-cmp"><div class="cmp-group"><div class="cmp-group-lbl"><span class="tower-s">South Tower</span> · Customer</div><div class="cmp-row"><div class="cmp-row-lbl">Approved</div><div class="cmp-track"><div class="cmp-fill" style="width:71%;background:#22c55e"><span class="cmp-fill-lbl">71%</span></div></div><div class="cmp-val">36 (71%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">De-snag</div><div class="cmp-track"><div class="cmp-fill" style="width:31%;background:#f59e0b"><span class="cmp-fill-lbl">31%</span></div></div><div class="cmp-val">16 (31%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">H/O</div><div class="cmp-track"><div class="cmp-fill" style="width:12%;background:#10b981"><span class="cmp-fill-lbl">12%</span></div></div><div class="cmp-val">6 (12%)</div></div></div><div class="cmp-group"><div class="cmp-group-lbl"><span class="tower-s">South Tower</span> · DHA</div><div class="cmp-row"><div class="cmp-row-lbl">Approved</div><div class="cmp-track"><div class="cmp-fill" style="width:67%;background:#22c55e"><span class="cmp-fill-lbl">67%</span></div></div><div class="cmp-val">16 (67%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">De-snag</div><div class="cmp-track"><div class="cmp-fill" style="width:25%;background:#f59e0b"><span class="cmp-fill-lbl">25%</span></div></div><div class="cmp-val">6 (25%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">H/O</div><div class="cmp-track"><div class="cmp-fill" style="width:25%;background:#10b981"><span class="cmp-fill-lbl">25%</span></div></div><div class="cmp-val">6 (25%)</div></div></div><div class="cmp-group"><div class="cmp-group-lbl"><span class="tower-n">North Tower</span> · Customer</div><div class="cmp-row"><div class="cmp-row-lbl">Approved</div><div class="cmp-track"><div class="cmp-fill" style="width:100%;background:#22c55e"><span class="cmp-fill-lbl">100%</span></div></div><div class="cmp-val">17 (100%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">De-snag</div><div class="cmp-track"><div class="cmp-fill" style="width:18%;background:#f59e0b"><span class="cmp-fill-lbl">18%</span></div></div><div class="cmp-val">3 (18%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">H/O</div><div class="cmp-track"><div class="cmp-fill" style="width:6%;background:#10b981"></div></div><div class="cmp-val">1 (6%)</div></div></div><div class="cmp-group"><div class="cmp-group-lbl"><span class="tower-n">North Tower</span> · DHA</div><div class="cmp-row"><div class="cmp-row-lbl">Approved</div><div class="cmp-track"><div class="cmp-fill" style="width:90%;background:#22c55e"><span class="cmp-fill-lbl">90%</span></div></div><div class="cmp-val">18 (90%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">De-snag</div><div class="cmp-track"><div class="cmp-fill" style="width:0%;background:#f59e0b"></div></div><div class="cmp-val">0 (0%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">H/O</div><div class="cmp-track"><div class="cmp-fill" style="width:0%;background:#10b981"></div></div><div class="cmp-val">0 (0%)</div></div></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">SQCR — group comparison</div>
+      <div class="card-sub">Approved / De-snag offered / Handed over</div>
+      <div id="sqcr-cmp"><div class="cmp-group"><div class="cmp-group-lbl"><span class="tower-s">South Tower</span> · Customer</div><div class="cmp-row"><div class="cmp-row-lbl">Approved</div><div class="cmp-track"><div class="cmp-fill" style="width:59%;background:#f59e0b"><span class="cmp-fill-lbl">59%</span></div></div><div class="cmp-val">30 (59%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">De-snag</div><div class="cmp-track"><div class="cmp-fill" style="width:51%;background:#ef4444"><span class="cmp-fill-lbl">51%</span></div></div><div class="cmp-val">26 (51%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">H/O</div><div class="cmp-track"><div class="cmp-fill" style="width:20%;background:#10b981"><span class="cmp-fill-lbl">20%</span></div></div><div class="cmp-val">10 (20%)</div></div></div><div class="cmp-group"><div class="cmp-group-lbl"><span class="tower-s">South Tower</span> · DHA</div><div class="cmp-row"><div class="cmp-row-lbl">Approved</div><div class="cmp-track"><div class="cmp-fill" style="width:71%;background:#f59e0b"><span class="cmp-fill-lbl">71%</span></div></div><div class="cmp-val">17 (71%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">De-snag</div><div class="cmp-track"><div class="cmp-fill" style="width:79%;background:#ef4444"><span class="cmp-fill-lbl">79%</span></div></div><div class="cmp-val">19 (79%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">H/O</div><div class="cmp-track"><div class="cmp-fill" style="width:21%;background:#10b981"><span class="cmp-fill-lbl">21%</span></div></div><div class="cmp-val">5 (21%)</div></div></div><div class="cmp-group"><div class="cmp-group-lbl"><span class="tower-n">North Tower</span> · Customer</div><div class="cmp-row"><div class="cmp-row-lbl">Approved</div><div class="cmp-track"><div class="cmp-fill" style="width:53%;background:#f59e0b"><span class="cmp-fill-lbl">53%</span></div></div><div class="cmp-val">9 (53%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">De-snag</div><div class="cmp-track"><div class="cmp-fill" style="width:12%;background:#ef4444"><span class="cmp-fill-lbl">12%</span></div></div><div class="cmp-val">2 (12%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">H/O</div><div class="cmp-track"><div class="cmp-fill" style="width:0%;background:#10b981"></div></div><div class="cmp-val">0 (0%)</div></div></div><div class="cmp-group"><div class="cmp-group-lbl"><span class="tower-n">North Tower</span> · DHA</div><div class="cmp-row"><div class="cmp-row-lbl">Approved</div><div class="cmp-track"><div class="cmp-fill" style="width:35%;background:#f59e0b"><span class="cmp-fill-lbl">35%</span></div></div><div class="cmp-val">7 (35%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">De-snag</div><div class="cmp-track"><div class="cmp-fill" style="width:0%;background:#ef4444"></div></div><div class="cmp-val">0 (0%)</div></div><div class="cmp-row"><div class="cmp-row-lbl">H/O</div><div class="cmp-track"><div class="cmp-fill" style="width:0%;background:#10b981"></div></div><div class="cmp-val">0 (0%)</div></div></div></div>
+    </div>
+  </div>
+
+  <!-- EDITABLE TABLE -->
+  <div class="card">
+    <div class="btn-row">
+      <div class="sec-title" style="margin-bottom:0;flex:1" id="table-heading">🔒 Data table — read only</div>
+      <button class="toggle-btn" id="today-col-toggle">Hide today cols</button>
+      <button class="toggle-btn" id="edit-lock-btn" style="border-color: rgb(245, 158, 11); color: rgb(245, 158, 11); background: rgb(42, 31, 0); appearance: none; touch-action: manipulation;">🔒 Edit</button>
+      <button class="reset-btn" id="reset-btn" style="display: none;">↺ Reset</button>
+      <button class="save-btn" id="save-btn" style="display: none;" onclick="saveFile()" ontouchend="tapSave(event)">💾 Save file</button>
+    </div>
+    <div class="edit-wrap">
+      <table class="edit-tbl">
+        <thead>
+          <tr>
+            <th style="text-align:left" rowspan="2">Group</th>
+            <th rowspan="2">Total</th>
+            <th class="aqcr-hd" colspan="4">AQCR</th>
+            <th class="sqcr-hd" colspan="4">SQCR</th>
+            <th class="today-hd-col" colspan="4" style="">Today's count</th>
+          </tr>
+          <tr>
+            <th class="aqcr-hd">Offered<div class="grp-sub">count</div></th>
+            <th class="aqcr-hd">Approved<div class="grp-sub">count</div></th>
+            <th class="aqcr-hd">De-snag<div class="grp-sub">offered</div></th>
+            <th class="aqcr-hd">Handed<div class="grp-sub">over</div></th>
+            <th class="sqcr-hd">Offered<div class="grp-sub">count</div></th>
+            <th class="sqcr-hd">Approved<div class="grp-sub">count</div></th>
+            <th class="sqcr-hd">De-snag<div class="grp-sub">offered</div></th>
+            <th class="sqcr-hd">Handed<div class="grp-sub">over</div></th>
+            <th class="today-hd-col" style="">AQCR<div class="grp-sub">approved</div></th>
+            <th class="today-hd-col" style="">SQCR<div class="grp-sub">approved</div></th>
+            <th class="today-hd-col" style="">AQCR de-snag<div class="grp-sub">approved</div></th>
+            <th class="today-hd-col" style="">SQCR de-snag<div class="grp-sub">approved</div></th>
+          </tr>
+        </thead>
+        <tbody id="edit-body"><tr><td><span class="tower-s">S</span> Customer</td><td style="text-align:center">51</td><td style="text-align:center">44</td><td style="text-align:center">36</td><td style="text-align:center">16</td><td style="text-align:center">6</td><td style="text-align:center">46</td><td style="text-align:center">30</td><td style="text-align:center">26</td><td style="text-align:center">10</td><td class="today-data-cell" style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td></tr><tr><td><span class="tower-s">S</span> DHA</td><td style="text-align:center">24</td><td style="text-align:center">17</td><td style="text-align:center">16</td><td style="text-align:center">6</td><td style="text-align:center">6</td><td style="text-align:center">18</td><td style="text-align:center">17</td><td style="text-align:center">19</td><td style="text-align:center">5</td><td class="today-data-cell" style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td></tr><tr><td><span class="tower-n">N</span> Customer</td><td style="text-align:center">17</td><td style="text-align:center">17</td><td style="text-align:center">17</td><td style="text-align:center">3</td><td style="text-align:center">1</td><td style="text-align:center">17</td><td style="text-align:center">9</td><td style="text-align:center">2</td><td style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td></tr><tr><td><span class="tower-n">N</span> DHA</td><td style="text-align:center">20</td><td style="text-align:center">18</td><td style="text-align:center">18</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">15</td><td style="text-align:center">7</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td><td class="today-data-cell" style="text-align:center">0</td></tr><tr class="sub-row" id="sub-south"><td style="color:#34d399">South subtotal</td><td>75</td><td>61</td><td>52</td><td>22</td><td>12</td><td>64</td><td>47</td><td>45</td><td>15</td><td class="today-data-cell">0</td><td class="today-data-cell">0</td><td class="today-data-cell">0</td><td class="today-data-cell">0</td></tr><tr class="sub-row" id="sub-north"><td style="color:#a5b4fc">North subtotal</td><td>37</td><td>35</td><td>35</td><td>3</td><td>1</td><td>32</td><td>16</td><td>2</td><td>0</td><td class="today-data-cell">0</td><td class="today-data-cell">0</td><td class="today-data-cell">0</td><td class="today-data-cell">0</td></tr><tr class="grand-row" id="grand-row"><td>Grand total</td><td>112</td><td>96</td><td>87</td><td>25</td><td>13</td><td>96</td><td>63</td><td>47</td><td>15</td><td class="today-data-cell">0</td><td class="today-data-cell">0</td><td class="today-data-cell">0</td><td class="today-data-cell">0</td></tr></tbody>
+      </table>
+    </div>
+    <div class="hint">💡 Tap/click any number to edit · Today columns reset each day · Ctrl+S or 💾 to save</div>
+  </div>
+
+</div>
+<div class="save-toast" id="save-toast" style="opacity: 0;">⚠ Incorrect password.</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────
+var DEFAULTS = [
+  {
+    "id": "sc",
+    "tower": "south",
+    "type": "cu",
+    "label": "South · Customer",
+    "total": 51,
+    "ao": 44,
+    "aa": 36,
+    "ad": 16,
+    "ah": 6,
+    "so": 46,
+    "sa": 30,
+    "sd": 26,
+    "sh": 10,
+    "taa": 0,
+    "tsa": 0,
+    "tad": 0,
+    "tsd": 0
+  },
+  {
+    "id": "sd",
+    "tower": "south",
+    "type": "dha",
+    "label": "South · DHA",
+    "total": 24,
+    "ao": 17,
+    "aa": 16,
+    "ad": 6,
+    "ah": 6,
+    "so": 18,
+    "sa": 17,
+    "sd": 19,
+    "sh": 5,
+    "taa": 0,
+    "tsa": 0,
+    "tad": 0,
+    "tsd": 0
+  },
+  {
+    "id": "nc",
+    "tower": "north",
+    "type": "cu",
+    "label": "North · Customer",
+    "total": 17,
+    "ao": 17,
+    "aa": 17,
+    "ad": 3,
+    "ah": 1,
+    "so": 17,
+    "sa": 9,
+    "sd": 2,
+    "sh": 0,
+    "taa": 0,
+    "tsa": 0,
+    "tad": 0,
+    "tsd": 0
+  },
+  {
+    "id": "nd",
+    "tower": "north",
+    "type": "dha",
+    "label": "North · DHA",
+    "total": 20,
+    "ao": 18,
+    "aa": 18,
+    "ad": 0,
+    "ah": 0,
+    "so": 15,
+    "sa": 7,
+    "sd": 0,
+    "sh": 0,
+    "taa": 0,
+    "tsa": 0,
+    "tad": 0,
+    "tsd": 0
+  }
+];
+var DATA = JSON.parse(JSON.stringify(DEFAULTS));
+var tF = 'all', tyF = 'all';
+var editMode = false; // locked by default // locked by default // locked by default // locked by default // locked by default
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+function SUM(arr, k){ return arr.reduce(function(a,r){ return a + (r[k]|0); }, 0); }
+function PCT(n, d){ return d === 0 ? 0 : Math.round(n / d * 100); }
+function filtered(){ return DATA.filter(function(r){ return (tF==='all'||r.tower===tF) && (tyF==='all'||r.type===tyF); }); }
+
+// ── HALF-DONUT GAUGE — clip+rotate two-arm technique (iOS safe) ──────
+// Left arm  is clipped to left half  of circle, rotates -135 → -45deg (0%→50%)
+// Right arm is clipped to right half of circle, rotates 135 → 45deg  (50%→100%)
+// Container overflow:hidden shows only top half (height=50px of 100px circle)
+function setGauge(pathId, pctId, descId, n, tot, color) {
+  var ARC    = 157;
+  var p      = (tot === 0) ? 0 : (n / tot);
+  var pct    = Math.round(p * 100);
+  var offset = (ARC - (ARC * p)).toFixed(1);
+  var pathEl = document.getElementById(pathId);
+  var pctEl  = document.getElementById(pctId);
+  var descEl = document.getElementById(descId);
+  if (pathEl) {
+    // iOS Safari requires style attribute set as a string — not JS property
+    pathEl.setAttribute('style',
+      'stroke-dasharray:' + ARC + ';' +
+      'stroke-dashoffset:' + offset + ';' +
+      'stroke:' + color + ';' +
+      'fill:none;' +
+      'stroke-width:11;' +
+      'stroke-linecap:round'
+    );
+    // Force iOS repaint
+    pathEl.getBoundingClientRect();
+  }
+  if (pctEl)  pctEl.textContent  = pct + '%';
+  if (descEl) descEl.textContent = n + ' of ' + tot;
+}
+
+// ── TODAY DATE (MANUAL EDIT ENABLED) ────────────────────────────────
+(function(){
+  var input = document.getElementById('today-date-input');
+  if(!input) return;
+
+  // default current date only if field empty
+  if(!input.value || input.value.trim()===''){
+    var d = new Date();
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    input.value = ('0'+d.getDate()).slice(-2) + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+})();
+
+// ── RENDER ALL ─────────────────────────────────────────────────────────
+function renderAll(){
+  var rows = filtered();
+  var tot  = SUM(rows,'total');
+  var aOff = SUM(rows,'ao'), aAppr = SUM(rows,'aa'), aDs = SUM(rows,'ad'), aHo = SUM(rows,'ah');
+  var sOff = SUM(rows,'so'), sAppr = SUM(rows,'sa'), sDs = SUM(rows,'sd'), sHo = SUM(rows,'sh');
+
+  // Today totals — filtered same as slicers
+  var tdAA = SUM(rows,'taa'), tdSA = SUM(rows,'tsa'), tdAD = SUM(rows,'tad'), tdSD = SUM(rows,'tsd');
+  var el;
+  el = document.getElementById('td-aa'); if(el) el.textContent = tdAA;
+  el = document.getElementById('td-sa'); if(el) el.textContent = tdSA;
+  el = document.getElementById('td-ad'); if(el) el.textContent = tdAD;
+  el = document.getElementById('td-sd'); if(el) el.textContent = tdSD;
+  el = document.getElementById('td-aa-cum'); if(el) el.textContent = SUM(rows,'aa');
+  el = document.getElementById('td-sa-cum'); if(el) el.textContent = SUM(rows,'sa');
+  el = document.getElementById('td-ad-cum'); if(el) el.textContent = SUM(rows,'ah');
+  el = document.getElementById('td-sd-cum'); if(el) el.textContent = SUM(rows,'sh');
+
+  // Top subtitle
+  var tLbl  = tF==='all'?'All towers':tF==='south'?'South tower (V1)':'North tower (V2)';
+  var tyLbl = tyF==='all'?'all types':tyF==='cu'?'Customer units':'DHA apartments';
+  el = document.getElementById('top-sub');
+  if(el) el.innerHTML = tLbl + ' · ' + tyLbl + ' · <strong>' + tot + '</strong> priority apartments';
+
+  // KPIs
+  var kpiData = [
+    {lbl:'Total requested',        val:tot,   desc:'EKL priority units',   pct:'',                          color:'#f0f0f0', pb:'#444'},
+    {lbl:'AQCR approved',          val:aAppr, desc:'of '+aOff+' offered',  pct:PCT(aAppr,tot)+'% of total', color:'#22c55e', pb:'#22c55e'},
+    {lbl:'SQCR approved',          val:sAppr, desc:'of '+sOff+' offered',  pct:PCT(sAppr,tot)+'% of total', color:'#f59e0b', pb:'#f59e0b'},
+    {lbl:'AQCR Handed Over / De-Snagged',  val:aHo,   desc:'AQCR handed over',     pct:PCT(aHo,tot)+'% of total',   color:'#10b981', pb:'#10b981'},
+    {lbl:'SQCR Handed Over / De-Snagged',  val:sHo,   desc:'SQCR handed over',     pct:PCT(sHo,tot)+'% of total',   color:'#10b981', pb:'#10b981'}
+  ];
+  var kpiHtml = '';
+  for(var i=0;i<kpiData.length;i++){
+    var k = kpiData[i];
+    kpiHtml += '<div class="kpi">' +
+      '<div class="kpi-lbl">'+k.lbl+'</div>' +
+      '<div class="kpi-val" style="color:'+k.color+'">'+k.val+'</div>' +
+      '<div class="kpi-desc">'+k.desc+'</div>' +
+      (k.pct ? '<div class="kpi-pct" style="color:'+k.color+'">'+k.pct+'</div>' : '') +
+      '<div style="height:4px;background:#2e2e2e;border-radius:2px;margin-top:8px;overflow:hidden">' +
+      '<div style="height:100%;width:'+PCT(k.val,tot)+'%;background:'+k.pb+';border-radius:2px;transition:width .4s"></div></div></div>';
+  }
+  el = document.getElementById('kpi-row'); if(el) el.innerHTML = kpiHtml;
+
+  // Gauges — called after DOM settled
+  setGauge('g-aa','g-aa-pct','g-aa-desc', aAppr, tot, '#22c55e');
+  setGauge('g-ad','g-ad-pct','g-ad-desc', aDs,   tot, '#f59e0b');
+  setGauge('g-ah','g-ah-pct','g-ah-desc', aHo,   tot, '#10b981');
+  setGauge('g-sa','g-sa-pct','g-sa-desc', sAppr, tot, '#f59e0b');
+  setGauge('g-sd','g-sd-pct','g-sd-desc', sDs,   tot, '#ef4444');
+  setGauge('g-sh','g-sh-pct','g-sh-desc', sHo,   tot, '#10b981');
+
+  // Pipeline bars
+  function pipeBar(lbl, n, t, color){
+    var p = PCT(n, t);
+    return '<div class="pipe-stage">' +
+      '<div class="pipe-hd"><span class="pipe-name">'+lbl+'</span><span class="pipe-count">'+n+' / '+t+'</span></div>' +
+      '<div class="pipe-track"><div class="pipe-fill" style="width:'+p+'%;background:'+color+'">' +
+      (p>5 ? '<span class="pipe-pct-lbl">'+p+'%</span>' : '') +
+      '</div></div></div>';
+  }
+  el = document.getElementById('aqcr-pipe');
+  if(el) el.innerHTML = pipeBar('Offered',aOff,tot,'#3b82f6') + pipeBar('Approved',aAppr,tot,'#22c55e') + pipeBar('De-snag offered',aDs,tot,'#f59e0b') + pipeBar('Handed over',aHo,tot,'#10b981');
+  el = document.getElementById('sqcr-pipe');
+  if(el) el.innerHTML = pipeBar('Offered',sOff,tot,'#8b5cf6') + pipeBar('Approved',sAppr,tot,'#f59e0b') + pipeBar('De-snag offered',sDs,tot,'#ef4444') + pipeBar('Handed over',sHo,tot,'#10b981');
+
+  // Comparison bars
+  function cmpRow(lbl, n, t, col){
+    var p = PCT(n, t);
+    return '<div class="cmp-row"><div class="cmp-row-lbl">'+lbl+'</div>' +
+      '<div class="cmp-track"><div class="cmp-fill" style="width:'+p+'%;background:'+col+'">' +
+      (p>8 ? '<span class="cmp-fill-lbl">'+p+'%</span>' : '') + '</div></div>' +
+      '<div class="cmp-val">'+n+' ('+p+'%)</div></div>';
+  }
+  function cmpGroupA(r){
+    var tw = r.tower==='south' ? '<span class="tower-s">South Tower</span>' : '<span class="tower-n">North Tower</span>';
+    return '<div class="cmp-group"><div class="cmp-group-lbl">'+tw+' · '+(r.type==='cu'?'Customer':'DHA')+'</div>' +
+      cmpRow('Approved',r.aa,r.total,'#22c55e') + cmpRow('De-snag',r.ad,r.total,'#f59e0b') + cmpRow('H/O',r.ah,r.total,'#10b981') + '</div>';
+  }
+  function cmpGroupS(r){
+    var tw = r.tower==='south' ? '<span class="tower-s">South Tower</span>' : '<span class="tower-n">North Tower</span>';
+    return '<div class="cmp-group"><div class="cmp-group-lbl">'+tw+' · '+(r.type==='cu'?'Customer':'DHA')+'</div>' +
+      cmpRow('Approved',r.sa,r.total,'#f59e0b') + cmpRow('De-snag',r.sd,r.total,'#ef4444') + cmpRow('H/O',r.sh,r.total,'#10b981') + '</div>';
+  }
+  var aCmp='', sCmp='';
+  for(var i=0;i<rows.length;i++){ aCmp += cmpGroupA(rows[i]); sCmp += cmpGroupS(rows[i]); }
+  el = document.getElementById('aqcr-cmp'); if(el) el.innerHTML = aCmp;
+  el = document.getElementById('sqcr-cmp'); if(el) el.innerHTML = sCmp;
+}
+
+// ── BUILD EDITABLE TABLE ───────────────────────────────────────────────
+function buildTable(){
+  var keys = ['ao','aa','ad','ah','so','sa','sd','sh','taa','tsa','tad','tsd'];
+  var html = '';
+  for(var i=0;i<DATA.length;i++){
+    var r = DATA[i];
+    var tw = r.tower==='south' ? '<span class="tower-s">S</span>' : '<span class="tower-n">N</span>';
+    html += '<tr><td>'+tw+' '+(r.type==='cu'?'Customer':'DHA')+'</td>';
+    if(editMode){
+      html += '<td><input type="number" min="0" max="999" value="'+r.total+'" data-ri="'+i+'" data-key="total"></td>';
+      for(var j=0;j<keys.length;j++){
+        var isTodayCol = (j >= 8);
+        var tdClass = isTodayCol ? ' class="today-data-cell"' : '';
+        var tdStyle = (isTodayCol && !todayColsVisible) ? ' style="display:none"' : '';
+        html += '<td'+tdClass+tdStyle+'><input type="number" min="0" max="999" value="'+r[keys[j]]+'" data-ri="'+i+'" data-key="'+keys[j]+'"></td>';
+      }
+    } else {
+      html += '<td style="text-align:center">'+r.total+'</td>';
+      for(var j=0;j<keys.length;j++){
+        var isTodayCol = (j >= 8);
+        var tdClass = isTodayCol ? ' class="today-data-cell"' : '';
+        var tdStyle = (isTodayCol && !todayColsVisible) ? ' style="display:none"' : '';
+        html += '<td'+tdClass+tdStyle+' style="text-align:center'+(isTodayCol && !todayColsVisible?';display:none':'')+'">'+r[keys[j]]+'</td>';
+      }
+    }
+    html += '</tr>';
+  }
+  // Subtotals
+  var towers = ['south','north'];
+  for(var t=0;t<towers.length;t++){
+    var tw = towers[t];
+    var trows = DATA.filter(function(r){ return r.tower===tw; });
+    var col = tw==='south' ? '#34d399' : '#a5b4fc';
+    html += '<tr class="sub-row" id="sub-'+tw+'"><td style="color:'+col+'">'+(tw==='south'?'South':'North')+' subtotal</td><td>'+SUM(trows,'total')+'</td>';
+    for(var j=0;j<keys.length;j++) {
+      var isTodayCol = (j >= 8);
+      var tdClass = isTodayCol ? ' class="today-data-cell"' : '';
+      var tdStyle = (isTodayCol && !todayColsVisible) ? ' style="display:none"' : '';
+      html += '<td'+tdClass+tdStyle+'>'+SUM(trows,keys[j])+'</td>';
+    }
+    html += '</tr>';
+  }
+  // Grand total
+  html += '<tr class="grand-row" id="grand-row"><td>Grand total</td><td>'+SUM(DATA,'total')+'</td>';
+  for(var j=0;j<keys.length;j++) {
+    var isTodayCol = (j >= 8);
+    var tdClass = isTodayCol ? ' class="today-data-cell"' : '';
+    var tdStyle = (isTodayCol && !todayColsVisible) ? ' style="display:none"' : '';
+    html += '<td'+tdClass+tdStyle+'>'+SUM(DATA,keys[j])+'</td>';
+  }
+  html += '</tr>';
+  var body = document.getElementById('edit-body');
+  if(body) body.innerHTML = html;
+  // Attach input listeners only in edit mode
+  if(editMode){
+    var inputs = body.querySelectorAll('input[data-ri]');
+    for(var i=0;i<inputs.length;i++){
+      inputs[i].addEventListener('input', onInput);
+    }
+  }
+}
+
+function onInput(e){
+  var ri  = parseInt(e.target.getAttribute('data-ri'));
+  var key = e.target.getAttribute('data-key');
+  var val = Math.max(0, parseInt(e.target.value) || 0);
+  DATA[ri][key] = val;
+  updateSubtotals();
+  renderAll();
+}
+
+function updateSubtotals(){
+  var keys = ['ao','aa','ad','ah','so','sa','sd','sh','taa','tsa','tad','tsd'];
+  var towers = ['south','north'];
+  for(var t=0;t<towers.length;t++){
+    var tw = towers[t];
+    var trows = DATA.filter(function(r){ return r.tower===tw; });
+    var sub = document.getElementById('sub-'+tw);
+    if(sub){
+      var cells = sub.querySelectorAll('td');
+      cells[1].textContent = SUM(trows,'total');
+      for(var j=0;j<keys.length;j++) cells[j+2].textContent = SUM(trows,keys[j]);
+    }
+  }
+  var grand = document.getElementById('grand-row');
+  if(grand){
+    var cells = grand.querySelectorAll('td');
+    cells[1].textContent = SUM(DATA,'total');
+    for(var j=0;j<keys.length;j++) cells[j+2].textContent = SUM(DATA,keys[j]);
+  }
+}
+
+// ── SLICER EVENTS (iOS delegation) ────────────────────────────────────
+function setSl(dim, val){
+  if(dim==='tower'){
+    tF = val;
+    ['sl-all','sl-south','sl-north'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('on'); });
+    var active = val==='all'?'sl-all':val==='south'?'sl-south':'sl-north';
+    var el = document.getElementById(active); if(el) el.classList.add('on');
+  } else {
+    tyF = val;
+    ['sl-atype','sl-cu','sl-dha'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('on'); });
+    var active = val==='all'?'sl-atype':val==='cu'?'sl-cu':'sl-dha';
+    var el = document.getElementById(active); if(el) el.classList.add('on');
+  }
+  renderAll();
+}
+
+function handleSlicerEvent(e){
+  var btn = e.target.closest ? e.target.closest('[data-dim]') : null;
+  if(!btn && e.target.getAttribute) btn = e.target.getAttribute('data-dim') ? e.target : null;
+  if(!btn) return;
+  e.preventDefault();
+  setSl(btn.getAttribute('data-dim'), btn.getAttribute('data-val'));
+}
+var slBar = document.getElementById('slicer-bar');
+if(slBar){
+  slBar.addEventListener('click',   handleSlicerEvent, false);
+  slBar.addEventListener('touchend', handleSlicerEvent, false);
+}
+
+// ── RESET ──────────────────────────────────────────────────────────────
+var resetBtn = document.getElementById('reset-btn');
+if(resetBtn){
+  resetBtn.addEventListener('click', function(){ DATA = JSON.parse(JSON.stringify(DEFAULTS)); buildTable(); renderAll(); });
+  resetBtn.addEventListener('touchend', function(e){ e.preventDefault(); DATA = JSON.parse(JSON.stringify(DEFAULTS)); buildTable(); renderAll(); });
+}
+
+// ── SAVE FILE ─────────────────────────────────────────────────────────
+function saveFile(){
+  // Sync today-date-input value to attribute so outerHTML captures it
+  var dateInput = document.getElementById('today-date-input');
+  if(dateInput) dateInput.setAttribute('value', dateInput.value);
+
+  var src = document.documentElement.outerHTML;
+  var dataStr = JSON.stringify(DATA, null, 2);
+  var updated = src.replace(/var DEFAULTS\s*=\s*\[[\s\S]*?\];/, 'var DEFAULTS = ' + dataStr + ';');
+  updated = updated.replace(/var editMode = [^;]+;/, 'var editMode = false; // locked by default');
+
+  var d = new Date();
+  var stamp = d.getFullYear() + ('0'+(d.getMonth()+1)).slice(-2) + ('0'+d.getDate()).slice(-2) + '_' + ('0'+d.getHours()).slice(-2) + ('0'+d.getMinutes()).slice(-2);
+  var filename = 'Emaar_EKL_Dashboard_' + stamp + '.html';
+
+  // Method 1: Blob URL (works on web servers, GitHub Pages)
+  if(window.Blob && window.URL && window.URL.createObjectURL) {
+    try {
+      var blob = new Blob([updated], {type:'text/html'});
+      var url  = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){ URL.revokeObjectURL(url); document.body.removeChild(a); }, 2000);
+      showToast('✓ File downloading as ' + filename);
+      return;
+    } catch(e){}
+  }
+
+  // Method 2: data URI anchor (some browsers on file://)
+  try {
+    var encoded = 'data:text/html;charset=utf-8,' + encodeURIComponent(updated);
+    var a2 = document.createElement('a');
+    a2.href = encoded;
+    a2.download = filename;
+    a2.style.display = 'none';
+    document.body.appendChild(a2);
+    a2.click();
+    setTimeout(function(){ document.body.removeChild(a2); }, 2000);
+    showToast('✓ File downloading as ' + filename);
+    return;
+  } catch(e){}
+
+  // Method 3: Open in new tab — user can Ctrl+S / Cmd+S from there
+  var win = window.open('', '_blank');
+  if(win){
+    win.document.open();
+    win.document.write(updated);
+    win.document.close();
+    showToast('✓ Opened in new tab — press Ctrl+S (or Cmd+S) to save as ' + filename);
+  } else {
+    showToast('⚠ Pop-up blocked. Allow pop-ups for this page, then try again.');
+  }
+}
+
+
+
+function showToast(msg){
+  var t = document.getElementById('save-toast');
+  if(t){ t.textContent = msg; t.style.opacity = '1'; setTimeout(function(){ t.style.opacity = '0'; }, 3000); }
+}
+
+var saveBtn = document.getElementById('save-btn');
+if(saveBtn){
+  saveBtn.addEventListener('click',    function(){ saveFile(); });
+  saveBtn.addEventListener('touchend', function(e){ e.preventDefault(); saveFile(); });
+}
+
+document.addEventListener('keydown', function(e){
+  if((e.ctrlKey || e.metaKey) && e.key === 's'){ e.preventDefault(); saveFile(); }
+});
+
+
+
+// ── EDIT MODE LOCK/UNLOCK ─────────────────────────────────────────────
+function toggleEditMode(){
+  if(!editMode){
+    var pw = prompt('Enter password to unlock editing:');
+    if(pw !== 'emaar2026'){ 
+      showToast('⚠ Incorrect password.');
+      return;
+    }
+    editMode = true;
+    document.getElementById('table-heading').textContent = '📝 Editable data table — update any number, dashboard refreshes instantly';
+    document.getElementById('edit-lock-btn').textContent = '🔓 Lock';
+    document.getElementById('edit-lock-btn').style.borderColor = '#22c55e';
+    document.getElementById('edit-lock-btn').style.color = '#22c55e';
+    document.getElementById('edit-lock-btn').style.background = '#052e16';
+    document.getElementById('reset-btn').style.display = '';
+    document.getElementById('save-btn').style.display = '';
+  } else {
+    editMode = false;
+    document.getElementById('table-heading').textContent = '🔒 Data table — read only';
+    document.getElementById('edit-lock-btn').textContent = '🔒 Edit';
+    document.getElementById('edit-lock-btn').style.borderColor = '#f59e0b';
+    document.getElementById('edit-lock-btn').style.color = '#f59e0b';
+    document.getElementById('edit-lock-btn').style.background = '#2a1f00';
+    document.getElementById('reset-btn').style.display = 'none';
+    document.getElementById('save-btn').style.display = 'none';
+  }
+  buildTable();
+}
+
+// ── TODAY TOGGLE ──────────────────────────────────────────────────────
+var todayVisible = true;
+function toggleToday() {
+  todayVisible = !todayVisible;
+  var strip = document.getElementById('today-strip');
+  var btn   = document.getElementById('today-toggle');
+  if (strip) strip.style.display = todayVisible ? '' : 'none';
+  if (btn) {
+    btn.textContent = todayVisible ? '📅 Hide today activity' : '📅 Show today activity';
+    if (todayVisible) btn.classList.remove('hidden-state');
+    else              btn.classList.add('hidden-state');
+  }
+}
+
+// ── TODAY COLUMNS TOGGLE ──────────────────────────────────────────────
+var todayColsVisible = true;
+function toggleTodayCols() {
+  todayColsVisible = !todayColsVisible;
+  var btn = document.getElementById('today-col-toggle');
+  // Toggle all cells with class today-hd-col (headers) and today data cells
+  var headers = document.querySelectorAll('.today-hd-col');
+  var cells   = document.querySelectorAll('.today-data-cell');
+  var disp = todayColsVisible ? '' : 'none';
+  for (var i = 0; i < headers.length; i++) headers[i].style.display = disp;
+  for (var i = 0; i < cells.length; i++)   cells[i].style.display   = disp;
+  if (btn) {
+    btn.textContent = todayColsVisible ? 'Hide today cols' : 'Show today cols';
+    if (todayColsVisible) btn.classList.remove('hidden-state');
+    else                  btn.classList.add('hidden-state');
+  }
+}
+
+
+
+// ── iOS SAFARI / IPHONE FIXES ────────────────────────────────────────
+function attachIOSHandlers(){
+  var slicers = document.querySelectorAll('.sl');
+  for(var i=0;i<slicers.length;i++){
+    (function(btn){
+      function runSlicer(e){
+        e.preventDefault();
+        e.stopPropagation();
+        var dim = btn.getAttribute('data-dim');
+        var val = btn.getAttribute('data-val');
+        setSl(dim, val);
+        renderAll();
+      }
+      btn.addEventListener('touchstart', runSlicer, {passive:false});
+      btn.addEventListener('pointerup', runSlicer, false);
+      btn.addEventListener('click', runSlicer, false);
+    })(slicers[i]);
+  }
+
+  var todayBtn = document.getElementById('today-toggle');
+  if(todayBtn){
+    todayBtn.addEventListener('click', function(){ toggleToday(); }, false);
+    todayBtn.addEventListener('touchend', function(e){ e.preventDefault(); toggleToday(); }, false);
+  }
+
+  var saveBtn = document.getElementById('save-btn');
+  if(saveBtn){
+    function runSave(e){
+      e.preventDefault();
+      e.stopPropagation();
+      saveFile();
+    }
+    saveBtn.addEventListener('touchstart', runSave, {passive:false});
+    saveBtn.addEventListener('pointerup', runSave, false);
+  }
+
+  var resetBtn = document.getElementById('reset-btn');
+  if(resetBtn){
+    function runReset(e){
+      e.preventDefault();
+      e.stopPropagation();
+      DATA = JSON.parse(JSON.stringify(DEFAULTS));
+      buildTable();
+      renderAll();
+    }
+    resetBtn.addEventListener('touchstart', runReset, {passive:false});
+    resetBtn.addEventListener('pointerup', runReset, false);
+  }
+  var editLockBtn = document.getElementById('edit-lock-btn');
+  if(editLockBtn){
+    editLockBtn.addEventListener('click',    function(){ toggleEditMode(); }, false);
+    editLockBtn.addEventListener('touchend', function(e){ e.preventDefault(); toggleEditMode(); }, false);
+  }
+  var todayColBtn = document.getElementById('today-col-toggle');
+  if(todayColBtn){
+    todayColBtn.addEventListener('click',    function(){ toggleTodayCols(); }, false);
+    todayColBtn.addEventListener('touchend', function(e){ e.preventDefault(); toggleTodayCols(); }, false);
+  }
+}
+
+
+
+// ── INIT ──────────────────────────────────────────────────────────────
+var _inited = false;
+function init() {
+  if (_inited) return;
+  _inited = true;
+  buildTable();
+  renderAll();
+  attachIOSHandlers();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+window.addEventListener('load', function(){
+  renderAll();
+  setTimeout(function(){ renderAll(); }, 300);
+  setTimeout(function(){ renderAll(); }, 800);
+});
+</script>
+
+
+
+</body></html>
