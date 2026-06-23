@@ -1,0 +1,788 @@
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Emaar – The Views · Handover Dashboard</title>
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f1117;color:#e5e7eb;min-height:100vh}
+
+/* TOP BAR */
+.topbar{background:linear-gradient(135deg,#0e3d5e 0%,#1a5276 100%);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:1px solid #1e3a5f}
+.topbar-left h1{font-size:16px;font-weight:700;color:#fff;letter-spacing:.02em}
+.topbar-left p{font-size:11px;color:#93c5fd;margin-top:3px}
+.logo-area{display:flex;align-items:center;gap:12px}
+.logo-badge{background:#fff;color:#0e3d5e;font-size:10px;font-weight:800;padding:4px 10px;border-radius:4px;letter-spacing:.05em}
+.date-badge{font-size:11px;color:#93c5fd;background:rgba(255,255,255,.1);padding:3px 10px;border-radius:20px}
+
+/* TABS */
+.tabs{display:flex;gap:0;background:#161b27;border-bottom:1px solid #1f2937;padding:0 1.5rem}
+.tab{font-size:12px;font-weight:500;padding:10px 18px;cursor:pointer;border-bottom:2px solid transparent;color:#6b7280;transition:all .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-appearance:none}
+.tab.on{color:#60a5fa;border-bottom-color:#60a5fa;background:rgba(96,165,250,.05)}
+.tab:hover{color:#9ca3af}
+
+/* WRAP */
+.wrap{padding:1.25rem 1.5rem;max-width:1200px;margin:0 auto}
+.section{display:none}
+.section.on{display:block}
+
+/* SECTION HEADER */
+.sec-hd{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.sec-hd h2{font-size:14px;font-weight:700;color:#f9fafb}
+.sec-hd p{font-size:11px;color:#6b7280}
+.total-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:#1e3a5f;color:#60a5fa}
+
+/* KPI ROW */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:1.25rem}
+.kpi{background:#161b27;border:1px solid #1f2937;border-radius:10px;padding:14px 16px}
+.kpi-lbl{font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.kpi-val{font-size:28px;font-weight:800;line-height:1;color:#f9fafb;margin-bottom:3px}
+.kpi-sub{font-size:10px;color:#6b7280;margin-bottom:6px}
+.kpi-bar{height:4px;background:#1f2937;border-radius:2px;overflow:hidden}
+.kpi-bar-f{height:100%;border-radius:2px}
+.kpi-pct{font-size:11px;font-weight:700;margin-top:5px}
+
+/* GROUP CARDS */
+.groups{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem}
+.group-card{background:#161b27;border:1px solid #1f2937;border-radius:12px;padding:1rem 1.25rem}
+.group-title{font-size:12px;font-weight:700;color:#f9fafb;margin-bottom:2px;display:flex;align-items:center;gap:8px}
+.group-total{font-size:10px;color:#6b7280;margin-bottom:12px}
+.stream-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;margin-top:10px}
+.stage-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.stage-name{font-size:10px;color:#9ca3af;width:72px;flex-shrink:0;text-align:right}
+.stage-track{flex:1;height:18px;background:#0f1117;border-radius:4px;overflow:hidden;position:relative}
+.stage-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:7px;transition:width .6s ease;min-width:0}
+.stage-pct{font-size:9px;font-weight:700;color:#fff;white-space:nowrap}
+.stage-n{font-size:10px;color:#6b7280;width:42px;flex-shrink:0;text-align:right}
+
+/* PIPELINE VISUAL */
+.pipeline-wrap{margin-bottom:1.25rem}
+.pipeline-card{background:#161b27;border:1px solid #1f2937;border-radius:12px;padding:1rem 1.25rem;margin-bottom:10px}
+.pipe-title{font-size:12px;font-weight:700;color:#f9fafb;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.pipe-row{display:flex;align-items:center;gap:4px;margin-bottom:8px}
+.pipe-lbl{font-size:10px;color:#9ca3af;width:160px;flex-shrink:0}
+.pipe-stages{flex:1;display:flex;gap:3px}
+.pipe-seg{height:24px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;min-width:20px;transition:width .6s ease}
+.pipe-seg-lbl{font-size:9px;color:#6b7280;width:28px;flex-shrink:0;text-align:right}
+
+/* COMPARISON BARS */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem}
+.compare-card{background:#161b27;border:1px solid #1f2937;border-radius:12px;padding:1rem 1.25rem}
+
+/* GRAND TOTAL TABLE */
+.grand-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:1.25rem}
+.grand-table th{font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;border-bottom:1px solid #1f2937;text-align:center;background:#161b27}
+.grand-table th:first-child{text-align:left}
+.grand-table td{padding:10px;border-bottom:1px solid #1f2937;text-align:center;color:#e5e7eb}
+.grand-table td:first-child{text-align:left;font-weight:600;color:#f9fafb}
+.grand-table tr.subtotal td{background:#1a2035;font-weight:700}
+.grand-table tr.grandtotal td{background:#1e3a5f;font-weight:800;color:#fff}
+.grand-table tr.pct-row td{background:#0f1117;color:#60a5fa;font-weight:700;font-size:11px}
+.grand-table tr:hover td{background:rgba(255,255,255,.02)}
+.aqcr-grp{background:#1b3a5c}
+.sqcr-grp{background:#1a3a2e}
+
+/* PILLS */
+.pill-north{background:#1e1b4b;color:#a5b4fc;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.pill-south{background:#064e3b;color:#34d399;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.pill-pri{background:#3d2a00;color:#fbbf24;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.pill-non{background:#1f2937;color:#9ca3af;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+
+/* RAG pills */
+.rag{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.rg{background:#052e16;color:#34d399}
+.ra{background:#3d2a00;color:#fbbf24}
+.rr{background:#4c0519;color:#fb7185}
+.rb{background:#1e3a5f;color:#60a5fa}
+
+/* LEGEND */
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1.25rem}
+.leg-i{display:flex;align-items:center;gap:5px;font-size:10px;color:#9ca3af}
+.leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* CARD TITLE */
+.card-title{font-size:13px;font-weight:700;color:#f9fafb;margin-bottom:4px}
+.card-sub{font-size:11px;color:#6b7280;margin-bottom:12px}
+
+/* MOBILE */
+@media(max-width:640px){
+  .topbar{padding:.75rem 1rem}
+  .topbar-left h1{font-size:13px}
+  .wrap{padding:.85rem .85rem}
+  .kpis{grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .groups{grid-template-columns:1fr;gap:10px}
+  .compare-grid{grid-template-columns:1fr}
+  .tabs{padding:0 .85rem;overflow-x:auto;flex-wrap:nowrap}
+  .tab{white-space:nowrap;flex-shrink:0;padding:10px 13px}
+  .grand-table{font-size:11px}
+  .grand-table th,.grand-table td{padding:6px 6px}
+}
+@media(max-width:380px){
+  .kpi-val{font-size:22px}
+  .kpis{grid-template-columns:1fr 1fr}
+}
+
+
+
+.slicer-bar{display:flex;align-items:center;gap:6px;padding:.65rem 1.5rem;background:#161b27;border-bottom:1px solid #1f2937;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.slicer-bar::-webkit-scrollbar{display:none}
+.sl-lbl{font-size:12px;color:#9ca3af;font-weight:500;white-space:nowrap;flex-shrink:0}
+.sl{font-size:12px;padding:5px 16px;border-radius:20px;cursor:pointer;border:1px solid #374151;color:#9ca3af;background:#1f2937;font-family:inherit;white-space:nowrap;flex-shrink:0;-webkit-appearance:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:all .15s}
+.sl.on{border-color:#3b82f6;color:#60a5fa;background:#1e3a5f;font-weight:600}
+.sl:active{opacity:.7}
+@media print { .slicer-bar{display:none !important} }
+
+/* ── SINGLE PAGE ADDITIONS ── */
+.divider{height:1px;background:linear-gradient(90deg,transparent,#334155,transparent);margin:1.5rem 0}
+.section-banner{display:flex;align-items:center;gap:10px;margin-bottom:1rem;padding:.5rem .75rem;border-radius:8px;flex-wrap:wrap}
+.section-banner h2{font-size:14px;font-weight:700;color:#f9fafb;margin:0}
+.section-banner.pri-banner{background:linear-gradient(90deg,#1e3a5f22,transparent);border-left:3px solid #3b82f6}
+.section-banner.nonpri-banner{background:linear-gradient(90deg,#1f293722,transparent);border-left:3px solid #6b7280}
+.section-banner.total-banner{background:linear-gradient(90deg,#052e1622,transparent);border-left:3px solid #10b981}
+
+/* Print */
+@media print {
+  /* ── Color preservation ── */
+  *{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* ── Page setup: A4 landscape, tight margins ── */
+  @page { size: A4 landscape; margin: 6mm 8mm; }
+
+  /* ── Base ── */
+  html, body { background: #0f1117 !important; color: #e5e7eb !important; margin:0; padding:0; font-size: 9px; }
+
+  /* ── Hide non-print elements ── */
+  .no-print, .slicer-bar { display: none !important; }
+
+  /* ── Top bar ── */
+  .topbar { padding: 4px 10px !important; background: #0e3d5e !important; border-bottom: 1px solid #1e3a5f !important; }
+  .topbar h1 { font-size: 11px !important; }
+  .topbar p  { font-size: 8px !important; }
+  .logo-badge{ font-size: 8px !important; padding: 2px 6px !important; }
+  .date-badge{ font-size: 8px !important; padding: 2px 6px !important; }
+  .logo-area { gap: 6px !important; }
+
+  /* ── Main wrap ── */
+  .wrap { padding: 5px 8px !important; max-width: 100% !important; }
+
+  /* ── Section banners ── */
+  .section-banner { padding: 3px 8px !important; margin-bottom: 5px !important; border-radius: 4px !important; }
+  .section-banner h2 { font-size: 10px !important; }
+  .total-badge { font-size: 8px !important; padding: 1px 6px !important; }
+  .pill-south, .pill-north { font-size: 8px !important; padding: 1px 5px !important; }
+
+  /* ── KPI boxes: 6 in a row, compact ── */
+  .kpis {
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 4px !important;
+    margin-bottom: 5px !important;
+  }
+  .kpi { padding: 5px 7px !important; border-radius: 5px !important; }
+  .kpi-lbl  { font-size: 7px !important; letter-spacing: .04em !important; margin-bottom: 2px !important; }
+  .kpi-val  { font-size: 16px !important; margin-bottom: 2px !important; }
+  .kpi-desc { font-size: 7px !important; margin-bottom: 2px !important; }
+  .kpi-bar  { height: 2px !important; margin-top: 2px !important; }
+  .kpi-pct  { font-size: 7px !important; margin-top: 2px !important; }
+
+  /* ── Group cards: 4 in a row for priority, 2 for non-priority ── */
+  .groups {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 4px !important;
+    margin-bottom: 5px !important;
+  }
+  #nonpri-groups {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .group-card { padding: 6px 8px !important; border-radius: 5px !important; break-inside: avoid; }
+  .group-title { font-size: 9px !important; gap: 4px !important; }
+  .group-total { font-size: 8px !important; margin-bottom: 6px !important; }
+  .stream-label { font-size: 7px !important; margin-top: 4px !important; margin-bottom: 2px !important; }
+  .stage-row  { margin-bottom: 2px !important; gap: 4px !important; }
+  .stage-name { font-size: 7px !important; width: 55px !important; }
+  .stage-track{ height: 11px !important; }
+  .stage-fill { padding-left: 3px !important; }
+  .stage-pct  { font-size: 7px !important; }
+  .stage-n    { font-size: 7px !important; width: 30px !important; }
+
+  /* ── Dividers ── */
+  .divider { margin: 4px 0 !important; }
+
+  /* ── Pipeline card ── */
+  .pipeline-card { padding: 6px 8px !important; margin-bottom: 5px !important; break-inside: avoid; }
+  .card-title { font-size: 9px !important; margin-bottom: 1px !important; }
+  .card-sub   { font-size: 7px !important; margin-bottom: 4px !important; }
+
+  /* ── Legend ── */
+  .legend { gap: 5px !important; margin-top: 5px !important; }
+  .leg-i  { font-size: 7px !important; gap: 3px !important; }
+  .leg-dot{ width: 7px !important; height: 7px !important; }
+
+  /* ── Page 1: Priority + Non-Priority ── */
+  /* ── Page 2: Total + pipeline ── */
+  /* Force page break before Grand Total section */
+  .page-break-before { page-break-before: always !important; break-before: page !important; }
+  .page-break-avoid  { page-break-inside: avoid !important; break-inside: avoid !important; }
+}
+
+@media(max-width:640px){
+  .kpis{grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .groups{grid-template-columns:1fr;gap:8px}
+}
+@media(max-width:400px){
+  .kpis{grid-template-columns:1fr 1fr;gap:5px}
+}
+</style>
+<style id="no-spin-style">#edit-tbody input::-webkit-outer-spin-button,#edit-tbody input::-webkit-inner-spin-button{-webkit-appearance:none}</style></head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <h1>Emaar — The Views · Handover Summary Dashboard</h1>
+    <p>Priority + Non-Priority · 419 total apartments · As of 16 June 2026</p>
+  </div>
+  <div class="logo-area">
+    <button onclick="window.print()" class="no-print" style="font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid #93c5fd;background:rgba(255,255,255,.1);color:#93c5fd;cursor:pointer;font-family:inherit;-webkit-appearance:none;touch-action:manipulation">🖨 Print</button>
+    <span class="logo-badge">PARAGON</span>
+    <span class="date-badge">16 Jun 2026</span>
+  </div>
+</div>
+
+
+<div class="slicer-bar" id="slicer-bar">
+  <span class="sl-lbl">Tower:</span>
+  <button class="sl on" id="sl-all" data-tower="all">All towers</button>
+  <button class="sl" id="sl-north" data-tower="north">North tower (V2)</button>
+  <button class="sl" id="sl-south" data-tower="south">South tower (V1)</button>
+</div>
+
+<div class="wrap">
+
+<!-- ═══════ SECTION 1: PRIORITY ═══════ -->
+<div class="section-banner pri-banner">
+  <h2>⚡ Priority Apartments</h2>
+  <span class="total-badge" id="pri-badge-total">120 Units</span>
+  <span class="pill-south" id="pri-badge-south">South: 79</span>
+  <span class="pill-north" id="pri-badge-north">North: 41</span>
+</div>
+
+<!-- Priority KPIs -->
+<div class="kpis" id="pri-kpis"><div class="kpi"><div class="kpi-lbl">Total Priority</div><div class="kpi-val" style="color:#3b82f6">120</div><div class="kpi-desc">EKL requested</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:100%;background:#3b82f6"></div></div><div class="kpi-pct" style="color:#3b82f6">120 units</div></div><div class="kpi"><div class="kpi-lbl">AQCR approved</div><div class="kpi-val" style="color:#22c55e">105</div><div class="kpi-desc">of 108 offered</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:88%;background:#22c55e"></div></div><div class="kpi-pct" style="color:#22c55e">88% of total</div></div><div class="kpi"><div class="kpi-lbl">SQCR approved</div><div class="kpi-val" style="color:#f59e0b">101</div><div class="kpi-desc">of 104 offered</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:84%;background:#f59e0b"></div></div><div class="kpi-pct" style="color:#f59e0b">84% of total</div></div><div class="kpi"><div class="kpi-lbl">AQCR De-snag Approved</div><div class="kpi-val" style="color:#10b981">48</div><div class="kpi-desc">of 55 de-snag offered</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:40%;background:#10b981"></div></div><div class="kpi-pct" style="color:#10b981">40% of total</div></div><div class="kpi"><div class="kpi-lbl">SQCR De-snag Approved</div><div class="kpi-val" style="color:#06b6d4">70</div><div class="kpi-desc">of 76 de-snag offered</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:58%;background:#06b6d4"></div></div><div class="kpi-pct" style="color:#06b6d4">58% of total</div></div><div class="kpi"><div class="kpi-lbl">Overall completion</div><div class="kpi-val" style="color:#60a5fa">40%</div><div class="kpi-desc">Based on AQCR De-snag Appr.</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:40%;background:#60a5fa"></div></div><div class="kpi-pct" style="color:#60a5fa">48 of 120 de-snag approved</div></div></div>
+
+<!-- Priority group cards -->
+<div class="groups" id="pri-groups">
+  <div class="group-card page-break-avoid" id="grp-sc"><div class="group-title"><span class="pill-south">South</span>  Customer <span class="pill-pri">Priority</span></div><div class="group-total">55 apartments</div><div class="stream-label" style="color:#7ec8f8">AQCR</div><div class="stage-row"><div class="stage-name">Offered</div><div class="stage-track"><div class="stage-fill" style="width:96%;background:#3b82f6"><span class="stage-pct">96%</span></div></div><div class="stage-n">53/55</div></div><div class="stage-row"><div class="stage-name">Approved</div><div class="stage-track"><div class="stage-fill" style="width:91%;background:#22c55e"><span class="stage-pct">91%</span></div></div><div class="stage-n">50/55</div></div><div class="stage-row"><div class="stage-name">De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:71%;background:#f97316"><span class="stage-pct">71%</span></div></div><div class="stage-n">39/55</div></div><div class="stage-row"><div class="stage-name">De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:60%;background:#10b981"><span class="stage-pct">60%</span></div></div><div class="stage-n">33/55</div></div><div class="stream-label" style="color:#6fcf97;margin-top:10px">SQCR</div><div class="stage-row"><div class="stage-name">Offered</div><div class="stage-track"><div class="stage-fill" style="width:96%;background:#8b5cf6"><span class="stage-pct">96%</span></div></div><div class="stage-n">53/55</div></div><div class="stage-row"><div class="stage-name">Approved</div><div class="stage-track"><div class="stage-fill" style="width:96%;background:#f59e0b"><span class="stage-pct">96%</span></div></div><div class="stage-n">53/55</div></div><div class="stage-row"><div class="stage-name">De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:80%;background:#ef4444"><span class="stage-pct">80%</span></div></div><div class="stage-n">44/55</div></div><div class="stage-row"><div class="stage-name">De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:75%;background:#10b981"><span class="stage-pct">75%</span></div></div><div class="stage-n">41/55</div></div></div>
+  <div class="group-card page-break-avoid" id="grp-sd"><div class="group-title"><span class="pill-south">South</span>  DHA <span class="pill-pri">Priority</span></div><div class="group-total">24 apartments</div><div class="stream-label" style="color:#7ec8f8">AQCR</div><div class="stage-row"><div class="stage-name">Offered</div><div class="stage-track"><div class="stage-fill" style="width:67%;background:#3b82f6"><span class="stage-pct">67%</span></div></div><div class="stage-n">16/24</div></div><div class="stage-row"><div class="stage-name">Approved</div><div class="stage-track"><div class="stage-fill" style="width:67%;background:#22c55e"><span class="stage-pct">67%</span></div></div><div class="stage-n">16/24</div></div><div class="stage-row"><div class="stage-name">De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:25%;background:#f97316"><span class="stage-pct">25%</span></div></div><div class="stage-n">6/24</div></div><div class="stage-row"><div class="stage-name">De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:25%;background:#10b981"><span class="stage-pct">25%</span></div></div><div class="stage-n">6/24</div></div><div class="stream-label" style="color:#6fcf97;margin-top:10px">SQCR</div><div class="stage-row"><div class="stage-name">Offered</div><div class="stage-track"><div class="stage-fill" style="width:71%;background:#8b5cf6"><span class="stage-pct">71%</span></div></div><div class="stage-n">17/24</div></div><div class="stage-row"><div class="stage-name">Approved</div><div class="stage-track"><div class="stage-fill" style="width:71%;background:#f59e0b"><span class="stage-pct">71%</span></div></div><div class="stage-n">17/24</div></div><div class="stage-row"><div class="stage-name">De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:25%;background:#ef4444"><span class="stage-pct">25%</span></div></div><div class="stage-n">6/24</div></div><div class="stage-row"><div class="stage-name">De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:25%;background:#10b981"><span class="stage-pct">25%</span></div></div><div class="stage-n">6/24</div></div></div>
+  <div class="group-card page-break-avoid" id="grp-nc"><div class="group-title"><span class="pill-north">North</span>  Customer <span class="pill-pri">Priority</span></div><div class="group-total">21 apartments</div><div class="stream-label" style="color:#7ec8f8">AQCR</div><div class="stage-row"><div class="stage-name">Offered</div><div class="stage-track"><div class="stage-fill" style="width:100%;background:#3b82f6"><span class="stage-pct">100%</span></div></div><div class="stage-n">21/21</div></div><div class="stage-row"><div class="stage-name">Approved</div><div class="stage-track"><div class="stage-fill" style="width:100%;background:#22c55e"><span class="stage-pct">100%</span></div></div><div class="stage-n">21/21</div></div><div class="stage-row"><div class="stage-name">De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:33%;background:#f97316"><span class="stage-pct">33%</span></div></div><div class="stage-n">7/21</div></div><div class="stage-row"><div class="stage-name">De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:29%;background:#10b981"><span class="stage-pct">29%</span></div></div><div class="stage-n">6/21</div></div><div class="stream-label" style="color:#6fcf97;margin-top:10px">SQCR</div><div class="stage-row"><div class="stage-name">Offered</div><div class="stage-track"><div class="stage-fill" style="width:100%;background:#8b5cf6"><span class="stage-pct">100%</span></div></div><div class="stage-n">21/21</div></div><div class="stage-row"><div class="stage-name">Approved</div><div class="stage-track"><div class="stage-fill" style="width:100%;background:#f59e0b"><span class="stage-pct">100%</span></div></div><div class="stage-n">21/21</div></div><div class="stage-row"><div class="stage-name">De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:86%;background:#ef4444"><span class="stage-pct">86%</span></div></div><div class="stage-n">18/21</div></div><div class="stage-row"><div class="stage-name">De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:81%;background:#10b981"><span class="stage-pct">81%</span></div></div><div class="stage-n">17/21</div></div></div>
+  <div class="group-card page-break-avoid" id="grp-nd"><div class="group-title"><span class="pill-north">North</span>  DHA <span class="pill-pri">Priority</span></div><div class="group-total">20 apartments</div><div class="stream-label" style="color:#7ec8f8">AQCR</div><div class="stage-row"><div class="stage-name">Offered</div><div class="stage-track"><div class="stage-fill" style="width:90%;background:#3b82f6"><span class="stage-pct">90%</span></div></div><div class="stage-n">18/20</div></div><div class="stage-row"><div class="stage-name">Approved</div><div class="stage-track"><div class="stage-fill" style="width:90%;background:#22c55e"><span class="stage-pct">90%</span></div></div><div class="stage-n">18/20</div></div><div class="stage-row"><div class="stage-name">De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:15%;background:#f97316"><span class="stage-pct">15%</span></div></div><div class="stage-n">3/20</div></div><div class="stage-row"><div class="stage-name">De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:15%;background:#10b981"><span class="stage-pct">15%</span></div></div><div class="stage-n">3/20</div></div><div class="stream-label" style="color:#6fcf97;margin-top:10px">SQCR</div><div class="stage-row"><div class="stage-name">Offered</div><div class="stage-track"><div class="stage-fill" style="width:65%;background:#8b5cf6"><span class="stage-pct">65%</span></div></div><div class="stage-n">13/20</div></div><div class="stage-row"><div class="stage-name">Approved</div><div class="stage-track"><div class="stage-fill" style="width:50%;background:#f59e0b"><span class="stage-pct">50%</span></div></div><div class="stage-n">10/20</div></div><div class="stage-row"><div class="stage-name">De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:40%;background:#ef4444"><span class="stage-pct">40%</span></div></div><div class="stage-n">8/20</div></div><div class="stage-row"><div class="stage-name">De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:30%;background:#10b981"><span class="stage-pct">30%</span></div></div><div class="stage-n">6/20</div></div></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════ SECTION 2: NON-PRIORITY ═══════ -->
+<div class="section-banner nonpri-banner">
+  <h2>🏢 Non-Priority Apartments</h2>
+  <span class="total-badge" id="non-badge-total">299 Units</span>
+  <span class="pill-north" id="non-badge-north">North: 188</span>
+  <span class="pill-south" id="non-badge-south">South: 111</span>
+</div>
+
+<!-- Non-Priority KPIs -->
+<div class="kpis" id="nonpri-kpis"><div class="kpi"><div class="kpi-lbl">Total Non-Priority</div><div class="kpi-val" style="color:#3b82f6">299</div><div class="kpi-desc">North + South</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:100%;background:#3b82f6"></div></div><div class="kpi-pct" style="color:#3b82f6">299 units</div></div><div class="kpi"><div class="kpi-lbl">AQCR approved</div><div class="kpi-val" style="color:#22c55e">6</div><div class="kpi-desc">of 33 offered</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:2%;background:#22c55e"></div></div><div class="kpi-pct" style="color:#22c55e">2% of total</div></div><div class="kpi"><div class="kpi-lbl">SQCR approved</div><div class="kpi-val" style="color:#f59e0b">27</div><div class="kpi-desc">of 30 offered</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:9%;background:#f59e0b"></div></div><div class="kpi-pct" style="color:#f59e0b">9% of total</div></div><div class="kpi"><div class="kpi-lbl">AQCR De-snag Approved</div><div class="kpi-val" style="color:#10b981">2</div><div class="kpi-desc">of 2 de-snag offered</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:1%;background:#10b981"></div></div><div class="kpi-pct" style="color:#10b981">1% of total</div></div><div class="kpi"><div class="kpi-lbl">SQCR De-snag Approved</div><div class="kpi-val" style="color:#06b6d4">15</div><div class="kpi-desc">of 17 de-snag offered</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:5%;background:#06b6d4"></div></div><div class="kpi-pct" style="color:#06b6d4">5% of total</div></div><div class="kpi"><div class="kpi-lbl">Overall completion</div><div class="kpi-val" style="color:#60a5fa">1%</div><div class="kpi-desc">Based on AQCR De-snag Appr.</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:1%;background:#60a5fa"></div></div><div class="kpi-pct" style="color:#60a5fa">2 of 299 de-snag approved</div></div></div>
+
+<!-- Non-Priority group cards -->
+<div class="groups" id="nonpri-groups" style="grid-template-columns:1fr 1fr">
+  <div class="group-card page-break-avoid" id="grp-sn"><div class="group-title"><span class="pill-south">South</span>  Non-Priority <span class="pill-non">Non-Priority</span></div><div class="group-total">111 apartments</div><div class="stream-label" style="color:#7ec8f8">AQCR</div><div class="stage-row"><div class="stage-name">Offered</div><div class="stage-track"><div class="stage-fill" style="width:0%;background:#3b82f6"></div></div><div class="stage-n">0/111</div></div><div class="stage-row"><div class="stage-name">Approved</div><div class="stage-track"><div class="stage-fill" style="width:0%;background:#22c55e"></div></div><div class="stage-n">0/111</div></div><div class="stage-row"><div class="stage-name">De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:0%;background:#f97316"></div></div><div class="stage-n">0/111</div></div><div class="stage-row"><div class="stage-name">De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:0%;background:#10b981"></div></div><div class="stage-n">0/111</div></div><div class="stream-label" style="color:#6fcf97;margin-top:10px">SQCR</div><div class="stage-row"><div class="stage-name">Offered</div><div class="stage-track"><div class="stage-fill" style="width:0%;background:#8b5cf6"></div></div><div class="stage-n">0/111</div></div><div class="stage-row"><div class="stage-name">Approved</div><div class="stage-track"><div class="stage-fill" style="width:0%;background:#f59e0b"></div></div><div class="stage-n">0/111</div></div><div class="stage-row"><div class="stage-name">De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:0%;background:#ef4444"></div></div><div class="stage-n">0/111</div></div><div class="stage-row"><div class="stage-name">De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:0%;background:#10b981"></div></div><div class="stage-n">0/111</div></div></div>
+  <div class="group-card page-break-avoid" id="grp-nn"><div class="group-title"><span class="pill-north">North</span>  Non-Priority <span class="pill-non">Non-Priority</span></div><div class="group-total">188 apartments</div><div class="stream-label" style="color:#7ec8f8">AQCR</div><div class="stage-row"><div class="stage-name">Offered</div><div class="stage-track"><div class="stage-fill" style="width:18%;background:#3b82f6"><span class="stage-pct">18%</span></div></div><div class="stage-n">33/188</div></div><div class="stage-row"><div class="stage-name">Approved</div><div class="stage-track"><div class="stage-fill" style="width:3%;background:#22c55e"></div></div><div class="stage-n">6/188</div></div><div class="stage-row"><div class="stage-name">De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:1%;background:#f97316"></div></div><div class="stage-n">2/188</div></div><div class="stage-row"><div class="stage-name">De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:1%;background:#10b981"></div></div><div class="stage-n">2/188</div></div><div class="stream-label" style="color:#6fcf97;margin-top:10px">SQCR</div><div class="stage-row"><div class="stage-name">Offered</div><div class="stage-track"><div class="stage-fill" style="width:16%;background:#8b5cf6"><span class="stage-pct">16%</span></div></div><div class="stage-n">30/188</div></div><div class="stage-row"><div class="stage-name">Approved</div><div class="stage-track"><div class="stage-fill" style="width:14%;background:#f59e0b"><span class="stage-pct">14%</span></div></div><div class="stage-n">27/188</div></div><div class="stage-row"><div class="stage-name">De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:9%;background:#ef4444"><span class="stage-pct">9%</span></div></div><div class="stage-n">17/188</div></div><div class="stage-row"><div class="stage-name">De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:8%;background:#10b981"></div></div><div class="stage-n">15/188</div></div></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════ SECTION 3: TOTAL (Priority + Non-Priority) ═══════ -->
+<div class="section-banner total-banner page-break-before">
+  <h2>📊 Total — Priority + Non-Priority</h2>
+  <span class="total-badge" id="tot-badge-total">419 Units</span>
+  <span class="pill-south" id="tot-badge-south">South: 190</span>
+  <span class="pill-north" id="tot-badge-north">North: 229</span>
+</div>
+
+<!-- Total KPIs -->
+<div class="kpis" id="total-kpis"><div class="kpi"><div class="kpi-lbl">Grand Total</div><div class="kpi-val" style="color:#3b82f6">419</div><div class="kpi-desc">Priority + Non-Priority</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:100%;background:#3b82f6"></div></div><div class="kpi-pct" style="color:#3b82f6">419 units</div></div><div class="kpi"><div class="kpi-lbl">AQCR approved</div><div class="kpi-val" style="color:#22c55e">111</div><div class="kpi-desc">of 141 offered</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:26%;background:#22c55e"></div></div><div class="kpi-pct" style="color:#22c55e">26% of total</div></div><div class="kpi"><div class="kpi-lbl">SQCR approved</div><div class="kpi-val" style="color:#f59e0b">128</div><div class="kpi-desc">of 134 offered</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:31%;background:#f59e0b"></div></div><div class="kpi-pct" style="color:#f59e0b">31% of total</div></div><div class="kpi"><div class="kpi-lbl">AQCR De-snag Approved</div><div class="kpi-val" style="color:#10b981">50</div><div class="kpi-desc">of 57 de-snag offered</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:12%;background:#10b981"></div></div><div class="kpi-pct" style="color:#10b981">12% of total</div></div><div class="kpi"><div class="kpi-lbl">SQCR De-snag Approved</div><div class="kpi-val" style="color:#06b6d4">85</div><div class="kpi-desc">of 93 de-snag offered</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:20%;background:#06b6d4"></div></div><div class="kpi-pct" style="color:#06b6d4">20% of total</div></div><div class="kpi"><div class="kpi-lbl">Overall completion</div><div class="kpi-val" style="color:#60a5fa">12%</div><div class="kpi-desc">Based on AQCR De-snag Appr.</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:12%;background:#60a5fa"></div></div><div class="kpi-pct" style="color:#60a5fa">50 of 419 de-snag approved</div></div></div>
+
+<!-- Pipeline funnel -->
+<div class="pipeline-card page-break-avoid">
+  <div class="card-title">Pipeline funnel — all 419 apartments</div>
+  <div class="card-sub">Each bar shows count and % of total across all 8 stages</div>
+  <div id="overall-pipe"><div class="stage-row"><div class="stage-name" style="width:130px;font-size:10px">AQCR Offered</div><div class="stage-track"><div class="stage-fill" style="width:34%;background:#3b82f6"><span class="stage-pct">34%</span></div></div><div class="stage-n" style="width:60px">141 / 419</div></div><div class="stage-row"><div class="stage-name" style="width:130px;font-size:10px">AQCR Approved</div><div class="stage-track"><div class="stage-fill" style="width:26%;background:#22c55e"><span class="stage-pct">26%</span></div></div><div class="stage-n" style="width:60px">111 / 419</div></div><div class="stage-row"><div class="stage-name" style="width:130px;font-size:10px">AQCR De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:14%;background:#f97316"><span class="stage-pct">14%</span></div></div><div class="stage-n" style="width:60px">57 / 419</div></div><div class="stage-row"><div class="stage-name" style="width:130px;font-size:10px">AQCR De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:12%;background:#10b981"><span class="stage-pct">12%</span></div></div><div class="stage-n" style="width:60px">50 / 419</div></div><div class="stage-row"><div class="stage-name" style="width:130px;font-size:10px">SQCR Offered</div><div class="stage-track"><div class="stage-fill" style="width:32%;background:#8b5cf6"><span class="stage-pct">32%</span></div></div><div class="stage-n" style="width:60px">134 / 419</div></div><div class="stage-row"><div class="stage-name" style="width:130px;font-size:10px">SQCR Approved</div><div class="stage-track"><div class="stage-fill" style="width:31%;background:#f59e0b"><span class="stage-pct">31%</span></div></div><div class="stage-n" style="width:60px">128 / 419</div></div><div class="stage-row"><div class="stage-name" style="width:130px;font-size:10px">SQCR De-snag Offered</div><div class="stage-track"><div class="stage-fill" style="width:22%;background:#ef4444"><span class="stage-pct">22%</span></div></div><div class="stage-n" style="width:60px">93 / 419</div></div><div class="stage-row"><div class="stage-name" style="width:130px;font-size:10px">SQCR De-snag Approved</div><div class="stage-track"><div class="stage-fill" style="width:20%;background:#06b6d4"><span class="stage-pct">20%</span></div></div><div class="stage-n" style="width:60px">85 / 419</div></div></div>
+  <div class="legend" style="margin-top:10px;margin-bottom:0">
+    <div class="leg-i"><div class="leg-dot" style="background:#3b82f6"></div>AQCR Offered</div>
+    <div class="leg-i"><div class="leg-dot" style="background:#22c55e"></div>AQCR Approved</div>
+    <div class="leg-i"><div class="leg-dot" style="background:#f97316"></div>AQCR De-snag Offered</div>
+    <div class="leg-i"><div class="leg-dot" style="background:#10b981"></div>AQCR De-snag Approved</div>
+    <div class="leg-i"><div class="leg-dot" style="background:#8b5cf6"></div>SQCR Offered</div>
+    <div class="leg-i"><div class="leg-dot" style="background:#f59e0b"></div>SQCR Approved</div>
+    <div class="leg-i"><div class="leg-dot" style="background:#ef4444"></div>SQCR De-snag Offered</div>
+    <div class="leg-i"><div class="leg-dot" style="background:#06b6d4"></div>SQCR De-snag Approved</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════ EDITABLE TABLE ═══════ -->
+<div class="no-print">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.07em" id="edit-heading">📝 Editable data table — update any number, all charts refresh</div>
+      <div style="font-size:10px;color:#4b5563;margin-top:2px">Updates all charts instantly when unlocked</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="edit-lock-btn" onclick="toggleEdit()" style="font-size: 11px; padding: 6px 14px; border-radius: 6px; border: 1px solid rgb(34, 197, 94); background: rgb(5, 46, 22); color: rgb(74, 222, 128); cursor: pointer; font-family: inherit; font-weight: 600; appearance: none; touch-action: manipulation;">🔓 Lock</button>
+      <button id="save-btn" onclick="saveFile()" style="font-size: 11px; padding: 6px 14px; border-radius: 6px; border: 1px solid rgb(22, 101, 52); background: rgb(20, 83, 45); color: rgb(74, 222, 128); cursor: pointer; font-family: inherit; font-weight: 600; appearance: none; touch-action: manipulation;">💾 Save file</button>
+    </div>
+  </div>
+  <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+    <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:780px">
+      <thead>
+        <tr>
+          <th rowspan="2" style="text-align:left;padding:7px 10px;background:#161b27;color:#9ca3af;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #1f2937">Group</th>
+          <th rowspan="2" style="padding:7px 8px;background:#161b27;color:#9ca3af;font-size:10px;font-weight:700;text-transform:uppercase;border-bottom:1px solid #1f2937;text-align:center">Total</th>
+          <th colspan="4" style="padding:7px 8px;background:#1b3a5c;color:#7ec8f8;font-size:10px;font-weight:700;text-align:center;border-bottom:1px solid #1f2937">AQCR</th>
+          <th colspan="4" style="padding:7px 8px;background:#1a3a2e;color:#6fcf97;font-size:10px;font-weight:700;text-align:center;border-bottom:1px solid #1f2937">SQCR</th>
+        </tr>
+        <tr>
+          <th style="padding:6px 8px;background:#1b3a5c;color:#7ec8f8;font-size:9px;text-align:center;border-bottom:1px solid #1f2937">Offered</th>
+          <th style="padding:6px 8px;background:#1b3a5c;color:#7ec8f8;font-size:9px;text-align:center;border-bottom:1px solid #1f2937">Approved</th>
+          <th style="padding:6px 8px;background:#1b3a5c;color:#7ec8f8;font-size:9px;text-align:center;border-bottom:1px solid #1f2937">De-snag Offered</th>
+          <th style="padding:6px 8px;background:#1b3a5c;color:#7ec8f8;font-size:9px;text-align:center;border-bottom:1px solid #1f2937">De-snag Approved</th>
+          <th style="padding:6px 8px;background:#1a3a2e;color:#6fcf97;font-size:9px;text-align:center;border-bottom:1px solid #1f2937">Offered</th>
+          <th style="padding:6px 8px;background:#1a3a2e;color:#6fcf97;font-size:9px;text-align:center;border-bottom:1px solid #1f2937">Approved</th>
+          <th style="padding:6px 8px;background:#1a3a2e;color:#6fcf97;font-size:9px;text-align:center;border-bottom:1px solid #1f2937">De-snag Offered</th>
+          <th style="padding:6px 8px;background:#1a3a2e;color:#6fcf97;font-size:9px;text-align:center;border-bottom:1px solid #1f2937">De-snag Approved</th>
+        </tr>
+      </thead>
+      <tbody id="edit-tbody"><tr><td colspan="10" style="padding:6px 10px;background:#0f1117;font-size:10px;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #1f2937">⚡ South Tower — Priority</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #1f2937;font-weight:600;color:#34d399">South · Customer</td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="55" data-gi="0" data-key="total" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="53" data-gi="0" data-key="ao" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="50" data-gi="0" data-key="aa" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="39" data-gi="0" data-key="ad" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="33" data-gi="0" data-key="ah" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="53" data-gi="0" data-key="so" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="53" data-gi="0" data-key="sa" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="44" data-gi="0" data-key="sd" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="41" data-gi="0" data-key="sh" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #1f2937;font-weight:600;color:#34d399">South · DHA</td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="24" data-gi="1" data-key="total" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="16" data-gi="1" data-key="ao" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="16" data-gi="1" data-key="aa" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="6" data-gi="1" data-key="ad" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="6" data-gi="1" data-key="ah" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="17" data-gi="1" data-key="so" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="17" data-gi="1" data-key="sa" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="6" data-gi="1" data-key="sd" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="6" data-gi="1" data-key="sh" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td></tr><tr style="background:#0d2b1f"><td style="padding:7px 10px;border-bottom:1px solid #1f2937;font-weight:700;color:#6ee7b7">South Priority Sub-Total</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#6ee7b7">79</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#6ee7b7">69</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#6ee7b7">66</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#6ee7b7">45</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#6ee7b7">39</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#6ee7b7">70</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#6ee7b7">70</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#6ee7b7">50</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#6ee7b7">47</td></tr><tr><td colspan="10" style="padding:6px 10px;background:#0f1117;font-size:10px;font-weight:700;color:#a5b4fc;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #1f2937">⚡ North Tower — Priority</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #1f2937;font-weight:600;color:#a5b4fc">North · Customer</td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="21" data-gi="2" data-key="total" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="21" data-gi="2" data-key="ao" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="21" data-gi="2" data-key="aa" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="7" data-gi="2" data-key="ad" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="6" data-gi="2" data-key="ah" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="21" data-gi="2" data-key="so" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="21" data-gi="2" data-key="sa" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="18" data-gi="2" data-key="sd" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="17" data-gi="2" data-key="sh" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #1f2937;font-weight:600;color:#a5b4fc">North · DHA</td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="20" data-gi="3" data-key="total" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="18" data-gi="3" data-key="ao" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="18" data-gi="3" data-key="aa" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="3" data-gi="3" data-key="ad" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="3" data-gi="3" data-key="ah" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="13" data-gi="3" data-key="so" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="10" data-gi="3" data-key="sa" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="8" data-gi="3" data-key="sd" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="6" data-gi="3" data-key="sh" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td></tr><tr style="background:#1a1b3a"><td style="padding:7px 10px;border-bottom:1px solid #1f2937;font-weight:700;color:#c4b5fd">North Priority Sub-Total</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#c4b5fd">41</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#c4b5fd">39</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#c4b5fd">39</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#c4b5fd">10</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#c4b5fd">9</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#c4b5fd">34</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#c4b5fd">31</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#c4b5fd">26</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#c4b5fd">23</td></tr><tr style="background:#1e3a5f"><td style="padding:7px 10px;border-bottom:1px solid #1f2937;font-weight:700;color:#fff">Priority Total (N + S)</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">120</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">108</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">105</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">55</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">48</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">104</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">101</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">76</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">70</td></tr><tr><td colspan="10" style="padding:6px 10px;background:#0f1117;font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #1f2937">🏢 Non-Priority</td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #1f2937;font-weight:600;color:#34d399">Non-Priority · South</td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="111" data-gi="5" data-key="total" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="0" data-gi="5" data-key="ao" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="0" data-gi="5" data-key="aa" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="0" data-gi="5" data-key="ad" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="0" data-gi="5" data-key="ah" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="0" data-gi="5" data-key="so" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="0" data-gi="5" data-key="sa" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="0" data-gi="5" data-key="sd" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="0" data-gi="5" data-key="sh" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td></tr><tr><td style="padding:6px 10px;border-bottom:1px solid #1f2937;font-weight:600;color:#a5b4fc">Non-Priority · North</td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="188" data-gi="4" data-key="total" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="33" data-gi="4" data-key="ao" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="6" data-gi="4" data-key="aa" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="2" data-gi="4" data-key="ad" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="2" data-gi="4" data-key="ah" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="30" data-gi="4" data-key="so" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="27" data-gi="4" data-key="sa" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="17" data-gi="4" data-key="sd" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td><td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center"><input type="number" min="0" max="9999" value="15" data-gi="4" data-key="sh" style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield"></td></tr><tr style="background:#1e2a3f"><td style="padding:7px 10px;border-bottom:1px solid #1f2937;font-weight:700;color:#fff">Grand Total</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">419</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">141</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">111</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">57</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">50</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">134</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">128</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">93</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#fff">85</td></tr><tr style="background:#0f1117"><td style="padding:7px 10px;border-bottom:1px solid #1f2937;font-weight:700;color:#60a5fa">Grand Total %</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#60a5fa">—</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#60a5fa">34%</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#60a5fa">26%</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#60a5fa">14%</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#60a5fa">12%</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#60a5fa">32%</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#60a5fa">31%</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#60a5fa">22%</td><td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#60a5fa">20%</td></tr></tbody>
+    </table>
+  </div>
+  <div style="font-size:10px;color:#374151;margin-top:6px">💡 Click 🔒 Edit → enter password → update any number → all charts refresh instantly → 💾 Save</div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+
+// ── DATA ──────────────────────────────────────────────────────────────
+var towerFilter = "all";
+var GROUPS = [{"id":"sc","label":"South · Customer","tower":"south","pri":true,"total":55,"ao":53,"aa":50,"ad":39,"ah":33,"so":53,"sa":53,"sd":44,"sh":41},{"id":"sd","label":"South · DHA","tower":"south","pri":true,"total":24,"ao":16,"aa":16,"ad":6,"ah":6,"so":17,"sa":17,"sd":6,"sh":6},{"id":"nc","label":"North · Customer","tower":"north","pri":true,"total":21,"ao":21,"aa":21,"ad":7,"ah":6,"so":21,"sa":21,"sd":18,"sh":17},{"id":"nd","label":"North · DHA","tower":"north","pri":true,"total":20,"ao":18,"aa":18,"ad":3,"ah":3,"so":13,"sa":10,"sd":8,"sh":6},{"id":"nn","label":"North · Non-Priority","tower":"north","pri":false,"total":188,"ao":33,"aa":6,"ad":2,"ah":2,"so":30,"sa":27,"sd":17,"sh":15},{"id":"sn","label":"South · Non-Priority","tower":"south","pri":false,"total":111,"ao":0,"aa":0,"ad":0,"ah":0,"so":0,"sa":0,"sd":0,"sh":0}];
+
+function pct(n,d){ return d===0?0:Math.round(n/d*100); }
+function ragCls(p){ return p>=100?'rb':p>=70?'rg':p>=30?'ra':'rr'; }
+function ragPill(n,d){ var p=pct(n,d); return '<span class="rag '+ragCls(p)+'">'+p+'%<br><small style="font-size:9px;font-weight:400">'+n+'/'+d+'</small></span>'; }
+
+function stageBar(lbl, n, tot, color){
+  var p = pct(n,tot);
+  return '<div class="stage-row">' +
+    '<div class="stage-name">'+lbl+'</div>' +
+    '<div class="stage-track"><div class="stage-fill" style="width:'+p+'%;background:'+color+'">' +
+    (p>8?'<span class="stage-pct">'+p+'%</span>':'') +
+    '</div></div>' +
+    '<div class="stage-n">'+n+'/'+tot+'</div>' +
+    '</div>';
+}
+
+function buildGroupCard(el, g){
+  var badge = g.tower==='south'?'<span class="pill-south">South</span>':'<span class="pill-north">North</span>';
+  var priB  = g.pri?'<span class="pill-pri">Priority</span>':'<span class="pill-non">Non-Priority</span>';
+  el.innerHTML = '<div class="group-title">'+badge+' '+g.label.split('·')[1]+' '+priB+'</div>' +
+    '<div class="group-total">'+g.total+' apartments</div>' +
+    '<div class="stream-label" style="color:#7ec8f8">AQCR</div>' +
+    stageBar('Offered',  g.ao, g.total, '#3b82f6') +
+    stageBar('Approved', g.aa, g.total, '#22c55e') +
+    stageBar('De-snag Offered',  g.ad, g.total, '#f97316') +
+    stageBar('De-snag Approved', g.ah, g.total, '#10b981') +
+    '<div class="stream-label" style="color:#6fcf97;margin-top:10px">SQCR</div>' +
+    stageBar('Offered',  g.so, g.total, '#8b5cf6') +
+    stageBar('Approved', g.sa, g.total, '#f59e0b') +
+    stageBar('De-snag Offered',  g.sd, g.total, '#ef4444') +
+    stageBar('De-snag Approved', g.sh, g.total, '#10b981');
+}
+
+function buildOverallPipe(groups){
+  var G = groups || GROUPS;
+  var tot = G.reduce(function(a,g){ return a+g.total; }, 0);
+  var SUM = function(k){ return G.reduce(function(a,g){ return a+g[k]; }, 0); };
+  var stages = [
+    {lbl:'AQCR Offered',          n:SUM('ao'), color:'#3b82f6'},
+    {lbl:'AQCR Approved',         n:SUM('aa'), color:'#22c55e'},
+    {lbl:'AQCR De-snag Offered',  n:SUM('ad'), color:'#f97316'},
+    {lbl:'AQCR De-snag Approved', n:SUM('ah'), color:'#10b981'},
+    {lbl:'SQCR Offered',          n:SUM('so'), color:'#8b5cf6'},
+    {lbl:'SQCR Approved',         n:SUM('sa'), color:'#f59e0b'},
+    {lbl:'SQCR De-snag Offered',  n:SUM('sd'), color:'#ef4444'},
+    {lbl:'SQCR De-snag Approved', n:SUM('sh'), color:'#06b6d4'},
+  ];
+  var html = '';
+  stages.forEach(function(s){
+    var p = pct(s.n, tot);
+    html += '<div class="stage-row">' +
+      '<div class="stage-name" style="width:130px;font-size:10px">'+s.lbl+'</div>' +
+      '<div class="stage-track"><div class="stage-fill" style="width:'+p+'%;background:'+s.color+'">' +
+      (p>5?'<span class="stage-pct">'+p+'%</span>':'')+
+      '</div></div>' +
+      '<div class="stage-n" style="width:60px">'+s.n+' / '+tot+'</div>' +
+      '</div>';
+  });
+  document.getElementById('overall-pipe').innerHTML = html;
+}
+
+function buildTowerPipe(elId){ var el=document.getElementById(elId); if(!el) return;
+}
+
+function buildStageCompare(){ var el=document.getElementById("stage-compare"); if(!el) return;
+}
+
+function buildRAG(){ var el=document.getElementById("rag-table"); if(!el) return;
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────
+function showTab(t){ return; }
+
+// Slicer iOS safe
+var tabEls = document.querySelectorAll('.tab');
+for(var i=0;i<tabEls.length;i++){
+  (function(el){
+    el.addEventListener('click', function(){
+      var t = el.id.replace('tab-','');
+      showTab(t);
+    }, false);
+    el.addEventListener('touchend', function(e){
+      e.preventDefault();
+      var t = el.id.replace('tab-','');
+      showTab(t);
+    }, false);
+  })(tabEls[i]);
+}
+
+
+// ── EDIT MODE ─────────────────────────────────────────────────────────
+var editMode = false;
+
+function toggleEdit(){
+  if(!editMode){
+    var pw = prompt('Enter password:');
+    if(pw !== 'emaar'){
+      alert('Incorrect password.');
+      return;
+    }
+    editMode = true;
+    document.getElementById('edit-heading').textContent = '📝 Editable data table — update any number, all charts refresh';
+    var lb = document.getElementById('edit-lock-btn');
+    lb.textContent = '🔓 Lock';
+    lb.style.borderColor='#22c55e'; lb.style.background='#052e16'; lb.style.color='#4ade80';
+    document.getElementById('save-btn').style.display = '';
+  } else {
+    editMode = false;
+    document.getElementById('edit-heading').textContent = '🔒 Data table — read only';
+    var lb = document.getElementById('edit-lock-btn');
+    lb.textContent = '🔒 Edit';
+    lb.style.borderColor='#f59e0b'; lb.style.background='#3d2a00'; lb.style.color='#fbbf24';
+    document.getElementById('save-btn').style.display = 'none';
+  }
+  buildEditTable();
+}
+
+var KEYS = ['total','ao','aa','ad','ah','so','sa','sd','sh'];
+var GROUP_LABELS = [
+  'South · Customer (Priority)',
+  'South · DHA (Priority)',
+  'North · Customer (Priority)',
+  'North · DHA (Priority)',
+  'North · Non-Priority',
+  'South · Non-Priority'
+];
+var TOWER_COLORS = ['#34d399','#34d399','#a5b4fc','#a5b4fc','#a5b4fc','#34d399'];
+
+function buildEditTable(){
+  var tbody = document.getElementById('edit-tbody');
+  if(!tbody) return;
+
+  var sc = GROUPS[0], sd = GROUPS[1], nc = GROUPS[2], nd = GROUPS[3], nn = GROUPS[4], sn = GROUPS[5];
+  var KEYS = ['total','ao','aa','ad','ah','so','sa','sd','sh'];
+
+  function inputCell(gi, key, val){
+    if(editMode){
+      return '<td style="padding:4px 5px;border-bottom:1px solid #1f2937;text-align:center">' +
+        '<input type="number" min="0" max="9999" value="'+val+'" data-gi="'+gi+'" data-key="'+key+'" ' +
+        'style="width:50px;padding:4px 2px;border:1px solid #374151;border-radius:4px;background:#1f2937;color:#f9fafb;font-size:12px;text-align:center;font-family:inherit;-moz-appearance:textfield">' +
+        '</td>';
+    }
+    return '<td style="padding:6px 8px;border-bottom:1px solid #1f2937;text-align:center;color:#e5e7eb">'+val+'</td>';
+  }
+
+  function dataRow(gi, label, g, color){
+    var row = '<tr><td style="padding:6px 10px;border-bottom:1px solid #1f2937;font-weight:600;color:'+color+'">'+label+'</td>';
+    KEYS.forEach(function(k){ row += inputCell(gi, k, g[k]); });
+    return row + '</tr>';
+  }
+
+  function sumRow(label, arr, bgColor, textColor){
+    var row = '<tr style="background:'+bgColor+'"><td style="padding:7px 10px;border-bottom:1px solid #1f2937;font-weight:700;color:'+textColor+'">'+label+'</td>';
+    KEYS.forEach(function(k){
+      var n = arr.reduce(function(a,g){ return a+g[k]; }, 0);
+      row += '<td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:'+textColor+'">'+n+'</td>';
+    });
+    return row + '</tr>';
+  }
+
+  function pctRow(label, arr){
+    var tot = arr.reduce(function(a,g){ return a+g.total; }, 0);
+    var row = '<tr style="background:#0f1117"><td style="padding:7px 10px;border-bottom:1px solid #1f2937;font-weight:700;color:#60a5fa">'+label+'</td>';
+    KEYS.forEach(function(k){
+      var n = arr.reduce(function(a,g){ return a+g[k]; }, 0);
+      var p = k==='total' ? '—' : pct(n, tot)+'%';
+      row += '<td style="padding:7px 8px;border-bottom:1px solid #1f2937;text-align:center;font-weight:700;color:#60a5fa">'+p+'</td>';
+    });
+    return row + '</tr>';
+  }
+
+  function sectionHeader(label, color){
+    return '<tr><td colspan="10" style="padding:6px 10px;background:#0f1117;font-size:10px;font-weight:700;color:'+color+';text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #1f2937">'+label+'</td></tr>';
+  }
+
+  var html = '';
+
+  // South Priority
+  html += sectionHeader('⚡ South Tower — Priority', '#34d399');
+  html += dataRow(0, 'South · Customer', sc, '#34d399');
+  html += dataRow(1, 'South · DHA', sd, '#34d399');
+  html += sumRow('South Priority Sub-Total', [sc, sd], '#0d2b1f', '#6ee7b7');
+
+  // North Priority
+  html += sectionHeader('⚡ North Tower — Priority', '#a5b4fc');
+  html += dataRow(2, 'North · Customer', nc, '#a5b4fc');
+  html += dataRow(3, 'North · DHA', nd, '#a5b4fc');
+  html += sumRow('North Priority Sub-Total', [nc, nd], '#1a1b3a', '#c4b5fd');
+
+  // Priority Total
+  html += sumRow('Priority Total (N + S)', [sc, sd, nc, nd], '#1e3a5f', '#fff');
+
+  // Non-Priority
+  html += sectionHeader('🏢 Non-Priority', '#9ca3af');
+  html += dataRow(5, 'Non-Priority · South', sn, '#34d399');
+  html += dataRow(4, 'Non-Priority · North', nn, '#a5b4fc');
+
+  // Grand Total
+  html += sumRow('Grand Total', [sc, sd, nc, nd, nn, sn], '#1e2a3f', '#fff');
+  html += pctRow('Grand Total %', [sc, sd, nc, nd, nn, sn]);
+
+  tbody.innerHTML = html;
+
+  // Attach listeners in edit mode
+  if(editMode){
+    var inputs = tbody.querySelectorAll('input');
+    for(var i=0;i<inputs.length;i++){
+      inputs[i].addEventListener('input', onEdit);
+    }
+    var style = document.getElementById('no-spin-style');
+    if(!style){
+      style = document.createElement('style');
+      style.id = 'no-spin-style';
+      style.textContent = '#edit-tbody input::-webkit-outer-spin-button,#edit-tbody input::-webkit-inner-spin-button{-webkit-appearance:none}';
+      document.head.appendChild(style);
+    }
+  }
+}
+
+function onEdit(e){
+  var gi  = parseInt(e.target.getAttribute('data-gi'));
+  var key = e.target.getAttribute('data-key');
+  var val = Math.max(0, parseInt(e.target.value)||0);
+  GROUPS[gi][key] = val;
+  rebuildAll();
+  buildEditTable();
+}
+
+
+function saveFile(){
+  var dateInput = document.getElementById('today-date-input');
+  if(dateInput) dateInput.setAttribute('value', dateInput.value);
+  var src = document.documentElement.outerHTML;
+  var dataStr = JSON.stringify(GROUPS);
+  var updated = src.replace(/var GROUPS = \[[\s\S]*?\];/, 'var GROUPS = ' + dataStr + ';');
+  // Reset editMode to false in saved file
+  updated = updated.replace(/var editMode = [^;]+;/, 'var editMode = false;');
+  var d = new Date();
+  var stamp = d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2)+('0'+d.getDate()).slice(-2)+'_'+('0'+d.getHours()).slice(-2)+('0'+d.getMinutes()).slice(-2);
+  var filename = 'TV-Views-Dashboard_'+stamp+'.html';
+  try {
+    var blob = new Blob([updated],{type:'text/html'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); document.body.removeChild(a); },2000);
+  } catch(e){
+    var a2 = document.createElement('a');
+    a2.href = 'data:text/html;charset=utf-8,'+encodeURIComponent(updated);
+    a2.download = filename;
+    document.body.appendChild(a2);
+    a2.click();
+    document.body.removeChild(a2);
+  }
+}
+
+// iOS touch for edit button
+document.addEventListener('DOMContentLoaded', function(){
+  var lb = document.getElementById('edit-lock-btn');
+  if(lb) lb.addEventListener('touchend', function(e){ e.preventDefault(); toggleEdit(); }, false);
+  var sb = document.getElementById('save-btn');
+  if(sb) sb.addEventListener('touchend', function(e){ e.preventDefault(); saveFile(); }, false);
+});
+
+
+// ── INIT ──────────────────────────────────────────────────────────────
+buildGroupCard(document.getElementById('grp-sc'), GROUPS[0]);
+buildGroupCard(document.getElementById('grp-sd'), GROUPS[1]);
+buildGroupCard(document.getElementById('grp-nc'), GROUPS[2]);
+buildGroupCard(document.getElementById('grp-nd'), GROUPS[3]);
+buildGroupCard(document.getElementById('grp-nn'), GROUPS[4]);
+buildGroupCard(document.getElementById('grp-sn'), GROUPS[5]);
+buildOverallPipe();
+buildTowerPipe('north-pipe', GROUPS.filter(function(g){return g.tower==='north';}), 229);
+buildTowerPipe('south-pipe', GROUPS.filter(function(g){return g.tower==='south';}), 190);
+buildStageCompare();
+buildRAG();
+buildEditTable();
+
+
+// ── KPI BUILDER ─────────────────────────────────────────────────────
+function buildKpiRow(elId, groups, firstLbl, firstSub){
+  var el = document.getElementById(elId);
+  if(!el) return;
+  var tot  = groups.reduce(function(a,g){return a+g.total;},0);
+  var aOff = groups.reduce(function(a,g){return a+g.ao;},0);
+  var aa   = groups.reduce(function(a,g){return a+g.aa;},0);
+  var sOff = groups.reduce(function(a,g){return a+g.so;},0);
+  var sa   = groups.reduce(function(a,g){return a+g.sa;},0);
+  var ad   = groups.reduce(function(a,g){return a+g.ad;},0);
+  var ah   = groups.reduce(function(a,g){return a+g.ah;},0);
+  var sd   = groups.reduce(function(a,g){return a+g.sd;},0);
+  var sh   = groups.reduce(function(a,g){return a+g.sh;},0);
+  function k(lbl, val, sub, p, color, pctTxt){
+    return '<div class="kpi">' +
+      '<div class="kpi-lbl">'+lbl+'</div>' +
+      '<div class="kpi-val" style="color:'+color+'">'+val+'</div>' +
+      '<div class="kpi-desc">'+sub+'</div>' +
+      '<div class="kpi-bar"><div class="kpi-bar-f" style="width:'+p+'%;background:'+color+'"></div></div>' +
+      '<div class="kpi-pct" style="color:'+color+'">'+pctTxt+'</div>' +
+      '</div>';
+  }
+  el.innerHTML =
+    k(firstLbl||'Total apartments', tot, firstSub||'all units', 100, '#3b82f6', tot+' units') +
+    k('AQCR approved',             aa,   'of '+aOff+' offered',          pct(aa,tot),  '#22c55e', pct(aa,tot)+'% of total') +
+    k('SQCR approved',             sa,   'of '+sOff+' offered',          pct(sa,tot),  '#f59e0b', pct(sa,tot)+'% of total') +
+    k('AQCR De-snag Approved',     ah,   'of '+ad+' de-snag offered',    pct(ah,tot),  '#10b981', pct(ah,tot)+'% of total') +
+    k('SQCR De-snag Approved',     sh,   'of '+sd+' de-snag offered',    pct(sh,tot),  '#06b6d4', pct(sh,tot)+'% of total') +
+    k('Overall completion', pct(ah,tot)+'%', 'Based on AQCR De-snag Appr.', pct(ah,tot), '#60a5fa', ah+' of '+tot+' de-snag approved');
+}
+
+// ── OVERRIDE rebuildAll ──────────────────────────────────────────────
+function rebuildAll(){
+  // Apply tower filter
+  var filtered = towerFilter === 'all' ? GROUPS : GROUPS.filter(function(g){ return g.tower === towerFilter; });
+  var priG  = filtered.filter(function(g){ return g.pri; });
+  var nonG  = filtered.filter(function(g){ return !g.pri; });
+
+  // Update section banners
+  var priTotal  = priG.reduce(function(a,g){return a+g.total;},0);
+  var nonTotal  = nonG.reduce(function(a,g){return a+g.total;},0);
+  var grandTotal = filtered.reduce(function(a,g){return a+g.total;},0);
+
+  // Update banner badges
+  var priSouth  = priG.filter(function(g){return g.tower==='south';}).reduce(function(a,g){return a+g.total;},0);
+  var priNorth  = priG.filter(function(g){return g.tower==='north';}).reduce(function(a,g){return a+g.total;},0);
+  var nonSouth  = nonG.filter(function(g){return g.tower==='south';}).reduce(function(a,g){return a+g.total;},0);
+  var nonNorth  = nonG.filter(function(g){return g.tower==='north';}).reduce(function(a,g){return a+g.total;},0);
+  var totSouth  = filtered.filter(function(g){return g.tower==='south';}).reduce(function(a,g){return a+g.total;},0);
+  var totNorth  = filtered.filter(function(g){return g.tower==='north';}).reduce(function(a,g){return a+g.total;},0);
+
+  function setBadge(id, txt){ var el=document.getElementById(id); if(el) el.textContent=txt; }
+  setBadge('pri-badge-total',  priTotal+' Units');
+  setBadge('pri-badge-south',  'South: '+priSouth);
+  setBadge('pri-badge-north',  'North: '+priNorth);
+  setBadge('non-badge-total',  nonTotal+' Units');
+  setBadge('non-badge-south',  'South: '+nonSouth);
+  setBadge('non-badge-north',  'North: '+nonNorth);
+  setBadge('tot-badge-total',  grandTotal+' Units');
+  setBadge('tot-badge-south',  'South: '+totSouth);
+  setBadge('tot-badge-north',  'North: '+totNorth);
+
+  // Show/hide group cards based on tower filter
+  var showSouth = towerFilter === 'all' || towerFilter === 'south';
+  var showNorth = towerFilter === 'all' || towerFilter === 'north';
+  function showCard(id, show){ var el=document.getElementById(id); if(el) el.style.display=show?'':'none'; }
+  showCard('grp-sc', showSouth);
+  showCard('grp-sd', showSouth);
+  showCard('grp-nc', showNorth);
+  showCard('grp-nd', showNorth);
+  showCard('grp-sn', showSouth);
+  showCard('grp-nn', showNorth);
+
+  // Rebuild group cards with latest data
+  buildGroupCard(document.getElementById('grp-sc'), GROUPS[0]);
+  buildGroupCard(document.getElementById('grp-sd'), GROUPS[1]);
+  buildGroupCard(document.getElementById('grp-nc'), GROUPS[2]);
+  buildGroupCard(document.getElementById('grp-nd'), GROUPS[3]);
+  buildGroupCard(document.getElementById('grp-sn'), GROUPS[5]);
+  buildGroupCard(document.getElementById('grp-nn'), GROUPS[4]);
+
+  // KPI rows with filtered data
+  buildKpiRow('pri-kpis',    priG,     'Total Priority',     'EKL requested');
+  buildKpiRow('nonpri-kpis', nonG,     'Total Non-Priority', towerFilter==='all'?'North + South':towerFilter==='north'?'North only':'South only');
+  buildKpiRow('total-kpis',  filtered, 'Grand Total',        towerFilter==='all'?'Priority + Non-Priority':towerFilter==='north'?'North tower':'South tower');
+  buildOverallPipe(filtered);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────
+var _inited = false;
+function init(){
+  if(_inited) return;
+  _inited = true;
+  rebuildAll();
+  buildEditTable();
+  // Slicer buttons
+  var btns = document.querySelectorAll('.sl');
+  for(var bi=0; bi<btns.length; bi++){
+    (function(btn){
+      btn.addEventListener('click', function(){ setSlicer(btn.getAttribute('data-tower')); }, false);
+      btn.addEventListener('touchend', function(e){ e.preventDefault(); setSlicer(btn.getAttribute('data-tower')); }, false);
+    })(btns[bi]);
+  }
+  // Edit/Save buttons
+  var lb = document.getElementById('edit-lock-btn');
+  if(lb) lb.addEventListener('touchend',function(e){e.preventDefault();toggleEdit();},false);
+  var sb = document.getElementById('save-btn');
+  if(sb) sb.addEventListener('touchend',function(e){e.preventDefault();saveFile();},false);
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',init);
+} else { init(); }
+window.addEventListener('load',function(){rebuildAll();});
+
+// ── TOWER SLICER ─────────────────────────────────────────────────────
+function setSlicer(tower){
+  towerFilter = tower;
+  var allBtns = document.querySelectorAll('.sl'); for(var i=0;i<allBtns.length;i++){ allBtns[i].classList.remove('on'); }
+  document.getElementById('sl-'+tower).classList.add('on');
+  rebuildAll();
+}
+// Slicer listeners attached in init()
+
+</script>
+
+</body></html>
